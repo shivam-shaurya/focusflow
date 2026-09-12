@@ -1,0 +1,107 @@
+export type Bucket = 'inbox' | 'today' | 'week' | 'someday'
+
+export interface Task {
+  id: string
+  title: string
+  /** Free-text detail, revealed when the task is opened. */
+  description: string
+  done: boolean
+  /** ISO date (yyyy-mm-dd) the task is scheduled for. Undefined = unscheduled. */
+  date?: string
+  bucket: Bucket
+  createdAt: number
+  completedAt?: number
+}
+
+/**
+ * A goal that repeats every single day (Meditation, Reading, …). Seven ship by
+ * default; every one can be renamed, described, reordered, or deleted.
+ */
+export interface DailyGoal {
+  id: string
+  name: string
+  /** Shared across every day — what this goal means in general. */
+  description: string
+  /** Emoji shown beside the name. */
+  emoji: string
+  /** Per-date detail. The name is shared across days; this is not. */
+  notes: Record<string, string>
+  /** ISO dates on which it was completed. */
+  history: string[]
+  order: number
+}
+
+export type Mood = 1 | 2 | 3 | 4 | 5
+
+export interface JournalEntry {
+  id: string
+  date: string
+  mood: Mood
+  focusRating: Mood
+  /** Template id the entry was written against. */
+  template: string
+  /** Field id -> answer, across every template used that day. */
+  answers: Record<string, string>
+  freeform: string
+  updatedAt: number
+}
+
+export interface FocusSession {
+  id: string
+  taskId?: string
+  minutes: number
+  startedAt: number
+  completed: boolean
+}
+
+/** A block in the "New Me" page — the pointed, re-read-daily material. */
+export type BlockKind = 'bullets' | 'checklist' | 'prompts' | 'links'
+export type BlockTone = 'neutral' | 'warn' | 'danger' | 'gold' | 'blue'
+
+export interface Block {
+  id: string
+  title: string
+  subtitle: string
+  kind: BlockKind
+  tone: BlockTone
+  /** Cover image or gif for this block. */
+  image?: string
+  items: BlockItem[]
+  order: number
+  open: boolean
+}
+
+export interface BlockItem {
+  id: string
+  text: string
+  /** checklist only */
+  done?: boolean
+  /** links only */
+  url?: string
+  /** links only */
+  image?: string
+}
+
+export interface Settings {
+  name: string
+  theme: 'dark' | 'light'
+  focusLength: number
+  breakLength: number
+  reduceMotion: boolean
+  yearTheme: string
+  /** Weekday index (0 = Monday) -> image or gif URL for that day's card. */
+  dayCovers: Record<string, string>
+  /** Banner across the top of the weekly board. */
+  banner: string
+  avatar: string
+  boardTitle: string
+}
+
+export interface AppState {
+  tasks: Task[]
+  goals: DailyGoal[]
+  journal: JournalEntry[]
+  sessions: FocusSession[]
+  blocks: Block[]
+  settings: Settings
+}

@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+/* Tailwind v4 keys `dark:` off prefers-color-scheme by default. This app puts a
+   .dark class on <html>, so any `dark:` utility must follow that toggle instead. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Design tokens (UI/UX Pro Max: Flat Design · Teal focus + action orange) ── */
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-primary: #0d9488;
+  --color-on-primary: #ffffff;
+  --color-secondary: #14b8a6;
+  --color-accent: #ea580c;
+  --color-on-accent: #ffffff;
+  --color-destructive: #dc2626;
+
+  --color-bg: #f0fdfa;
+  --color-surface: #ffffff;
+  --color-surface-2: #e8f1f4;
+  --color-fg: #134e4a;
+  --color-fg-muted: #475569;
+  --color-line: #99f6e4;
+
+  --radius-card: 0.875rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+/* Dark is the default shell: lower stimulus, less glare for long focus blocks. */
+.dark {
+  color-scheme: dark;
+  --color-bg: #0b1211;
+  --color-surface: #121b1a;
+  --color-surface-2: #182423;
+  --color-fg: #e6f2f0;
+  --color-fg-muted: #8fa5a2;
+  --color-line: #1f2f2d;
+  --color-primary: #2dd4bf;
+  --color-on-primary: #06201d;
+  --color-secondary: #5eead4;
+  --color-accent: #fb923c;
+  --color-on-accent: #2a1103;
+}
+
+* { border-color: var(--color-line); }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis-weight: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--color-fg-muted) 30%, transparent);
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

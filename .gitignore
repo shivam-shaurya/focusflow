@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Thumbs
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Vite PWA build output
+dev-dist
+
+# Tauri
+src-tauri/target
+src-tauri/gen
