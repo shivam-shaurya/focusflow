@@ -1,22 +1,26 @@
 name: Deploy to GitHub Pages
 
+# Builds the site and pushes it to a `gh-pages` branch.
+#
+# This is the branch-based publishing method rather than the newer
+# "Source: GitHub Actions" one, because that mode requires Pages to be enabled
+# through the repo UI first and the workflow token cannot do it. Creating a
+# gh-pages branch, by contrast, is something the workflow can do on its own —
+# and GitHub often auto-enables Pages the first time that branch appears.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
-# Let a running deploy finish; queue at most one more.
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,20 +35,16 @@ jobs:
       - name: Build (base path /focusflow/)
         run: npm run build:pages
 
-      # Requires Pages to be enabled once by hand:
-      # Settings -> Pages -> Build and deployment -> Source: GitHub Actions
-      - uses: actions/configure-pages@v5
+      # Hash routing means no 404.html is needed, but .nojekyll is: without it
+      # GitHub Pages' Jekyll pass strips paths that start with an underscore.
+      - name: Add .nojekyll
+        run: touch dist/.nojekyll
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Publish to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          commit_message: 'Deploy ${{ github.sha }}'
