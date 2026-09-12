@@ -1,68 +1,31 @@
 import {
-  createContext, useCallback, useContext, useEffect, useMemo, useState,
+  createContext, useCallback, useContext, useEffect, useMemo, useRef, useState,
   type ReactNode,
 } from 'react'
 import type {
   AppState, Block, BlockItem, BlockKind, DailyGoal, FocusSession, JournalEntry, Settings, Task,
 } from './types'
-import { seedBlocks, seedGoals, uid } from './seed'
-import { todayISO } from './date'
+import { uid } from './seed'
+import {
+  clearPreImport, loadState, migrate, readPreImport, saveState, seed, stashPreImport,
+  type LoadStatus,
+} from './persist'
 
-const KEY = 'focusflow.v2'
+/** How long to coalesce edits before writing. Journal typing fires per keystroke. */
+const DEBOUNCE_MS = 400
 
-const defaultSettings: Settings = {
-  name: '',
-  theme: 'dark',
-  focusLength: 25,
-  breakLength: 5,
-  reduceMotion: false,
-  yearTheme: '',
-  dayCovers: {},
-  banner: '',
-  avatar: '',
-  boardTitle: 'Become powerful',
-}
-
-const seed = (): AppState => ({
-  tasks: [
-    {
-      id: uid(),
-      title: 'Rename the seven daily goals to yours',
-      description: 'Click a goal to open it, rename it, and write what “done” means for you.',
-      done: false,
-      date: todayISO(),
-      bucket: 'today',
-      createdAt: Date.now(),
-    },
-  ],
-  goals: seedGoals(),
-  journal: [],
-  sessions: [],
-  blocks: seedBlocks(),
-  settings: defaultSettings,
-})
-
-const load = (): AppState => {
-  try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return seed()
-    const p = JSON.parse(raw) as Partial<AppState>
-    return {
-      tasks: (p.tasks ?? []).map((t) => ({ ...t, description: t.description ?? '' })),
-      goals: p.goals?.length ? p.goals.map((g) => ({ ...g, notes: g.notes ?? {} })) : seedGoals(),
-      journal: (p.journal ?? []).map((j) => ({ ...j, template: j.template ?? 'daily' })),
-      sessions: p.sessions ?? [],
-      blocks: p.blocks ?? seedBlocks(),
-      settings: { ...defaultSettings, ...p.settings, dayCovers: { ...p.settings?.dayCovers } },
-    }
-  } catch {
-    return seed()
-  }
-}
+export type SaveStatus = 'saved' | 'pending' | 'quota' | 'unavailable' | 'frozen'
 
 interface Store {
   state: AppState
-  /** Set when the last write to localStorage failed (usually a quota overflow). */
+  /** What happened to the last write, and whether writing is possible at all. */
+  saveStatus: SaveStatus
+  /** How the saved payload read on boot — drives the recovery banner. */
+  bootStatus: LoadStatus
+  /** True while edits are made but not yet flushed to disk. */
+  unsaved: boolean
+  retrySave: () => void
+  /** Human-readable form of a write failure, or '' when writes are fine. */
   storageError: string
   addTask: (t: Partial<Task> & { title: string }) => Task
   updateTask: (id: string, patch: Partial<Task>) => void
@@ -93,25 +56,100 @@ interface Store {
   resetAll: () => void
   exportJSON: () => string
   importJSON: (raw: string) => boolean
+  /** Restores the snapshot taken just before the last import. */
+  undoImport: () => boolean
+  canUndoImport: boolean
 }
 
 const Ctx = createContext<Store | null>(null)
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AppState>(load)
-  const [storageError, setStorageError] = useState('')
+const ERRORS: Record<Exclude<SaveStatus, 'saved' | 'pending'>, string> = {
+  quota:
+    'Browser storage is full — most likely from uploaded images. ' +
+    'Download a backup, then remove a few uploaded covers or use image links instead.',
+  unavailable:
+    'This browser is not allowing FocusFlow to save. Private-browsing windows often ' +
+    'block storage. Download a backup so nothing is lost.',
+  frozen:
+    'Your saved data was written by a newer version of FocusFlow. Nothing is being ' +
+    'saved right now, so that newer data is not overwritten. Reload to pick it up.',
+}
 
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [boot] = useState(loadState)
+  const [state, setState] = useState<AppState>(boot.state)
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>(
+    boot.status === 'future' ? 'frozen' : 'saved',
+  )
+  const [canUndoImport, setCanUndoImport] = useState(() => readPreImport() !== null)
+
+  /**
+   * Writing is refused in two cases, both to protect bytes already on disk:
+   * a payload from a newer schema, and a corrupt payload we could not copy aside.
+   */
+  const writable = useRef(
+    boot.status !== 'future' && !(boot.status === 'corrupt' && !boot.quarantined),
+  )
+
+  /**
+   * Latest committed state, for the flush handlers and for the pre-import
+   * snapshot. Updated in an effect rather than during render, so it is only ever
+   * read after commit — which is true of every caller (timers, DOM events).
+   */
+  const stateRef = useRef(state)
   useEffect(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(state))
-      setStorageError('')
-    } catch {
-      setStorageError(
-        'Browser storage is full — most likely from uploaded images. ' +
-        'Use image links instead of uploads, or remove a few covers.',
-      )
-    }
+    stateRef.current = state
   }, [state])
+
+  const timer = useRef<number | undefined>(undefined)
+
+  const flush = useCallback(() => {
+    window.clearTimeout(timer.current)
+    timer.current = undefined
+    if (!writable.current) return
+    const res = saveState(stateRef.current)
+    setSaveStatus(res.ok ? 'saved' : res.reason)
+  }, [])
+
+  // Coalesce edits, then write. Skips the very first run: boot.state came off
+  // disk (or is a seed we do not want to persist over an unreadable payload).
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) {
+      first.current = false
+      return
+    }
+    if (!writable.current) return
+    setSaveStatus((s) => (s === 'saved' ? 'pending' : s))
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(flush, DEBOUNCE_MS)
+    return () => window.clearTimeout(timer.current)
+  }, [state, flush])
+
+  /**
+   * Flush on the way out. `pagehide` is the event that actually fires on mobile;
+   * `beforeunload` alone would drop the last keystroke before a tab close.
+   */
+  useEffect(() => {
+    const onHide = () => flush()
+    const onVisibility = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    window.addEventListener('pagehide', onHide)
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.removeEventListener('pagehide', onHide)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [flush])
+
+  const retrySave = useCallback(() => {
+    writable.current = boot.status !== 'future'
+    flush()
+  }, [flush, boot.status])
+
+  const storageError =
+    saveStatus === 'saved' || saveStatus === 'pending' ? '' : ERRORS[saveStatus]
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', state.settings.theme === 'dark')
@@ -331,37 +369,45 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const exportJSON = useCallback(() => JSON.stringify(state, null, 2), [state])
 
+  /**
+   * Import replaces everything, so the current state is stashed first and can be
+   * restored with `undoImport`. Validation is `migrate`, the same gate `load`
+   * uses, so a file that would not load cannot get in this way either.
+   */
   const importJSON = useCallback((raw: string) => {
     try {
-      const p = JSON.parse(raw) as Partial<AppState>
-      if (!p || typeof p !== 'object' || !Array.isArray(p.tasks)) return false
-      setState({
-        tasks: p.tasks ?? [],
-        goals: (p.goals ?? seedGoals()).map((g) => ({ ...g, notes: g.notes ?? {} })),
-        journal: p.journal ?? [],
-        sessions: p.sessions ?? [],
-        blocks: p.blocks ?? seedBlocks(),
-        settings: { ...defaultSettings, ...p.settings },
-      })
+      const next = migrate(JSON.parse(raw))
+      setCanUndoImport(stashPreImport(stateRef.current))
+      setState(next)
       return true
     } catch {
       return false
     }
   }, [])
 
+  const undoImport = useCallback(() => {
+    const prev = readPreImport()
+    if (!prev) return false
+    setState(prev)
+    clearPreImport()
+    setCanUndoImport(false)
+    return true
+  }, [])
+
   const value = useMemo<Store>(
     () => ({
       state, storageError,
+      saveStatus, bootStatus: boot.status, unsaved: saveStatus === 'pending', retrySave,
       addTask, updateTask, toggleTask, removeTask,
       addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal,
       saveJournal, logSession,
       addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
-      setSettings, setDayCover, resetAll, exportJSON, importJSON,
+      setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport,
     }),
-    [state, storageError, addTask, updateTask, toggleTask, removeTask, addGoal, updateGoal,
-      toggleGoal, setGoalNote, removeGoal, moveGoal, saveJournal, logSession, addBlock, updateBlock,
-      removeBlock, moveBlock, addItem, updateItem, removeItem, setSettings, setDayCover,
-      resetAll, exportJSON, importJSON],
+    [state, storageError, saveStatus, boot.status, retrySave, addTask, updateTask, toggleTask,
+      removeTask, addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal, saveJournal,
+      logSession, addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
+      setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport],
   )
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>

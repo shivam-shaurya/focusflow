@@ -1,23 +1,37 @@
-import { useRef, useState } from 'react'
-import { Check, Download, Monitor, Moon, Share, Sun, Trash2, Upload } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, Download, Monitor, Moon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { Button, Card, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 import { GoalList } from '../components/GoalList'
 import { todayISO } from '../lib/date'
-import { storageUsedKB, useInstallPrompt, useOnline } from '../lib/pwa'
+import {
+  estimateStorage, isPersisted, requestPersistence, useInstallPrompt, useOnline,
+} from '../lib/pwa'
 
 const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
+const mb = (bytes: number) => `${(bytes / 1_048_576).toFixed(1)} MB`
+
 export function Settings() {
   const {
-    state, storageError, setSettings, setDayCover, resetAll, exportJSON, importJSON,
+    state, storageError, saveStatus, setSettings, setDayCover, resetAll,
+    exportJSON, importJSON, undoImport, canUndoImport,
   } = useStore()
   const { settings } = state
   const { state: installState, install } = useInstallPrompt()
   const online = useOnline()
   const [msg, setMsg] = useState('')
+  const [showUndo, setShowUndo] = useState(false)
+  const [usage, setUsage] = useState<{ usage: number; quota: number } | null>(null)
+  const [persisted, setPersisted] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  // Re-read the real figures whenever a write lands, so the number is not stale.
+  useEffect(() => {
+    void estimateStorage().then(setUsage)
+    void isPersisted().then(setPersisted)
+  }, [saveStatus, state])
 
   const download = () => {
     const blob = new Blob([exportJSON()], { type: 'application/json' })
@@ -32,7 +46,12 @@ export function Settings() {
   const upload = async (file: File) => {
     const ok = importJSON(await file.text())
     setMsg(ok ? 'Data imported.' : 'That file did not look like a FocusFlow backup.')
-    window.setTimeout(() => setMsg(''), 4000)
+    if (ok) {
+      // Import replaces everything, so leave the way back open for a while.
+      setShowUndo(true)
+      window.setTimeout(() => setShowUndo(false), 20_000)
+    }
+    window.setTimeout(() => setMsg(''), 6000)
   }
 
   return (
@@ -178,12 +197,50 @@ export function Settings() {
       <Card>
         <SectionTitle
           title="Your data"
-          hint={`Everything lives on this device — about ${storageUsedKB()} KB so far. Nothing is uploaded anywhere, online or off.`}
+          hint="Everything lives on this device. Nothing is uploaded anywhere, online or off."
         />
+
+        <dl className="mb-4 flex flex-col gap-2 text-sm">
+          <div className="flex flex-wrap justify-between gap-2">
+            <dt className="text-[var(--color-fg-muted)]">Space used</dt>
+            <dd className="font-semibold tabular-nums">
+              {usage ? `${mb(usage.usage)} of ${mb(usage.quota)} available` : 'Not reported by this browser'}
+            </dd>
+          </div>
+          <div className="flex flex-wrap justify-between gap-2">
+            <dt className="text-[var(--color-fg-muted)]">Connection</dt>
+            <dd className="font-semibold">
+              {online ? 'Online — nothing is syncing' : 'Offline — edits are still saving'}
+            </dd>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <dt className="text-[var(--color-fg-muted)]">Eviction protection</dt>
+            <dd className="flex items-center gap-2 font-semibold">
+              {persisted ? (
+                <>
+                  <ShieldCheck size={15} className="text-[var(--color-primary)]" aria-hidden="true" />
+                  Protected from automatic cleanup
+                </>
+              ) : (
+                <>
+                  <span className="text-[var(--color-fg-muted)]">
+                    Your browser may clear this if the device runs low on space
+                  </span>
+                  <Button
+                    size="sm"
+                    onClick={() => void requestPersistence().then(setPersisted)}
+                  >
+                    Request protection
+                  </Button>
+                </>
+              )}
+            </dd>
+          </div>
+        </dl>
+
         <p className="mb-4 text-sm text-[var(--color-fg-muted)]">
-          {online
-            ? 'Connected. Nothing is being synced — the network is only used to load images you link to.'
-            : 'Offline. Everything still works; your edits are saving normally.'}
+          Export writes a single JSON file. It is also how you move data between the
+          browser version and the desktop app, which keep separate stores.
         </p>
         <div className="flex flex-wrap gap-2">
           <Button onClick={download}><Download size={16} /> Export backup</Button>
@@ -210,7 +267,24 @@ export function Settings() {
             <Trash2 size={16} /> Reset everything
           </Button>
         </div>
-        {msg && <p role="status" className="mt-3 text-sm font-semibold text-[var(--color-primary)]">{msg}</p>}
+        {msg && (
+          <div role="status" className="mt-3 flex flex-wrap items-center gap-3">
+            <p className="text-sm font-semibold text-[var(--color-primary)]">{msg}</p>
+            {showUndo && canUndoImport && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  undoImport()
+                  setShowUndo(false)
+                  setMsg('Import undone — your previous data is back.')
+                  window.setTimeout(() => setMsg(''), 4000)
+                }}
+              >
+                <Undo2 size={15} /> Undo import
+              </Button>
+            )}
+          </div>
+        )}
       </Card>
     </div>
   )

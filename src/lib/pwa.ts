@@ -74,6 +74,42 @@ export function useOnline() {
   return online
 }
 
+/**
+ * Ask the browser to mark this origin's storage as persistent. Without it the
+ * data is "best-effort": evictable under disk pressure, and on iOS subject to
+ * the 7-day cap for a site that has not been added to the home screen.
+ * Every call is feature-detected — Safari < 17 and the Tauri WebView lack it.
+ */
+export async function requestPersistence(): Promise<boolean> {
+  try {
+    if (!navigator.storage?.persist) return false
+    if (await navigator.storage.persisted?.()) return true
+    return await navigator.storage.persist()
+  } catch {
+    return false
+  }
+}
+
+export async function isPersisted(): Promise<boolean> {
+  try {
+    return (await navigator.storage?.persisted?.()) ?? false
+  } catch {
+    return false
+  }
+}
+
+/** Real quota figures, covering everything this origin stores — not just localStorage. */
+export async function estimateStorage(): Promise<{ usage: number; quota: number } | null> {
+  try {
+    if (!navigator.storage?.estimate) return null
+    const { usage, quota } = await navigator.storage.estimate()
+    if (usage === undefined || quota === undefined) return null
+    return { usage, quota }
+  } catch {
+    return null
+  }
+}
+
 /** Rough localStorage footprint, so the data page can warn before the quota bites. */
 export function storageUsedKB(): number {
   try {

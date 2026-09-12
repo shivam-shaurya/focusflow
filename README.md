@@ -127,7 +127,25 @@ ADHD-specific choices, on purpose:
 
 ## Data
 
-Everything is in `localStorage` under `focusflow.v2`. Nothing leaves the device,
+Everything is in `localStorage` under `focusflow.v2`, with a `version` field in the
+payload driving a migration ladder (`src/lib/persist.ts`). Writes are debounced
+~400ms and flushed on `pagehide`, so closing a tab mid-sentence does not lose it.
+
+Three guarantees the app makes about saving:
+
+- **A failed save is never silent.** If the quota fills or the browser blocks
+  storage, a sticky banner appears wherever you are, with a **Download a backup**
+  button. It does not go away until saving works again.
+- **A damaged save is never overwritten.** If the stored payload can't be parsed
+  it is copied to `focusflow.v2.corrupt.<ts>` *before* the app starts fresh, and
+  you're offered the damaged file to download. If it can't be copied aside,
+  saving is refused entirely so the bytes stay recoverable.
+- **A newer save is never downgraded.** A payload written by a future version
+  freezes writes instead of clobbering it.
+
+The app also calls `navigator.storage.persist()` so the browser won't evict your
+data under disk pressure — Settings shows whether that was granted. Import takes
+a snapshot first and offers an **Undo import** for 20 seconds. Nothing leaves the device,
 online or offline — the network is only ever used to fetch cover images you link
 to, and those are cached for offline use too. Settings → Export backup writes a
 JSON file; Import reads it back. That export is also how you move data between

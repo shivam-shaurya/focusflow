@@ -12,7 +12,8 @@ import { NewMe } from './views/NewMe'
 import { Settings } from './views/Settings'
 import { cx } from './components/ui'
 import { OfflineBadge, PwaToasts } from './components/PwaToasts'
-import { useOnline } from './lib/pwa'
+import { StorageBanner } from './components/StorageBanner'
+import { requestPersistence, useOnline } from './lib/pwa'
 
 type Route = 'today' | 'planner' | 'journal' | 'newme' | 'progress' | 'settings'
 
@@ -31,8 +32,13 @@ const routeFromHash = (): Route => {
 }
 
 function Shell() {
-  const { state } = useStore()
+  const { state, saveStatus } = useStore()
   const online = useOnline()
+
+  // Ask once per session; the browser only shows a prompt where it wants to.
+  useEffect(() => {
+    void requestPersistence()
+  }, [])
   const [route, setRoute] = useState<Route>(routeFromHash)
   const [navOpen, setNavOpen] = useState(false)
 
@@ -93,7 +99,12 @@ function Shell() {
         <OfflineBadge online={online} />
         <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
           Press <kbd className="rounded border px-1">1</kbd>–<kbd className="rounded border px-1">6</kbd> to
-          switch views. Everything saves automatically.
+          switch views.{' '}
+          {saveStatus === 'saved'
+            ? 'Everything saves automatically.'
+            : saveStatus === 'pending'
+              ? 'Saving…'
+              : 'Saving is paused — see the banner above.'}
         </p>
         </div>
       </nav>
@@ -150,6 +161,8 @@ function Shell() {
           <span className="font-extrabold tracking-tight">FocusFlow</span>
           <span className="ml-auto"><OfflineBadge online={online} /></span>
         </header>
+
+        <StorageBanner />
 
         <main id="main" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           <AnimatePresence mode="wait">

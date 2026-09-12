@@ -98,6 +98,8 @@ export interface Settings {
 }
 
 export interface AppState {
+  /** Schema version of this payload. See SCHEMA in lib/persist.ts. */
+  version: number
   tasks: Task[]
   goals: DailyGoal[]
   journal: JournalEntry[]

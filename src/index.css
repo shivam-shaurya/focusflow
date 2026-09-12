@@ -1,3 +1,7 @@
+/* Self-hosted so the face is precached by the service worker and a first-ever
+   offline launch still renders in the right typeface — and so no third party
+   sees a request. Variable font: one file covers 200..800. */
+@import "@fontsource-variable/plus-jakarta-sans";
 @import "tailwindcss";
 
 /* Tailwind v4 keys `dark:` off prefers-color-scheme by default. This app puts a
