@@ -7,8 +7,72 @@ tracker. Motion-style app shell, everything stored locally in the browser.
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # type-check + production build into dist/
+npm run dev            # http://localhost:5173
+npm run build          # type-check + production build into dist/
+npm run build:pages    # build for GitHub Pages (base /focusflow/)
+npm run build:tauri    # build for the desktop shell (base /, no service worker)
+npm run icons          # regenerate every icon from scripts/make-icons.py
+```
+
+## Install it (offline app)
+
+FocusFlow is a PWA: a service worker precaches the whole app shell, so after
+one visit it opens with no connection at all. Data was already local-only —
+offline changes nothing about where it lives.
+
+| Platform | How to install |
+|---|---|
+| **Windows / macOS / Linux** (Chrome, Edge) | Install icon in the address bar, or Settings → Install FocusFlow |
+| **Android** (Chrome) | Browser menu → *Install app* / *Add to Home screen* |
+| **iPhone / iPad** (Safari) | Share → *Add to Home Screen* — the only route Apple allows |
+| **Native desktop app** | Download the `.msi` / `.exe` / `.dmg` from the repo's Releases, or build it: `npm run desktop:build` |
+
+Settings shows an **Install FocusFlow** card that detects your platform and
+either installs directly or gives the exact steps. A sidebar badge appears
+when you go offline, so it is never ambiguous whether edits are saving.
+
+### Updates
+
+The app never reloads itself. When a new version is deployed you get a
+"new version is ready" toast with an explicit **Reload now** — losing a
+half-written journal entry to a silent refresh would be worse than running one
+version behind. Updating does not touch stored data.
+
+## Deploy
+
+### GitHub Pages (automatic)
+
+`.github/workflows/deploy.yml` builds and publishes on every push to `main`.
+The app uses hash routing (`#/today`), so deep links work on Pages with no
+404-rewrite trick.
+
+```bash
+git remote add origin https://github.com/<you>/focusflow.git
+git push -u origin main
+```
+
+Then in the repo: **Settings → Pages → Source: GitHub Actions**. The site lands
+at `https://<you>.github.io/focusflow/`.
+
+> If you name the repo something other than `focusflow`, change `base` in
+> [vite.config.ts](vite.config.ts) to match.
+
+### Desktop installers
+
+`.github/workflows/desktop.yml` builds Windows (`.msi`, `.exe`), macOS
+(Apple Silicon + Intel `.dmg`), and Linux (`.deb`, AppImage) installers and
+attaches them to a draft GitHub Release:
+
+```bash
+git tag v1.0.0 && git push --tags
+```
+
+To build locally instead you need Rust plus your platform's C toolchain
+(MSVC Build Tools on Windows, Xcode CLT on macOS):
+
+```bash
+npm run desktop:dev      # hot-reloading desktop window
+npm run desktop:build    # installer in src-tauri/target/release/bundle/
 ```
 
 ## Views
@@ -63,9 +127,13 @@ ADHD-specific choices, on purpose:
 
 ## Data
 
-Everything is in `localStorage` under `focusflow.v1`. Nothing leaves the browser.
-Settings → Export backup writes a JSON file; Import reads it back.
+Everything is in `localStorage` under `focusflow.v2`. Nothing leaves the device,
+online or offline — the network is only ever used to fetch cover images you link
+to, and those are cached for offline use too. Settings → Export backup writes a
+JSON file; Import reads it back. That export is also how you move data between
+the browser version and the desktop app, since they have separate stores.
 
 ## Stack
 
-React 19 · TypeScript · Vite · Tailwind CSS v4 · motion · lucide-react
+React 19 · TypeScript · Vite · Tailwind CSS v4 · motion · lucide-react ·
+vite-plugin-pwa (Workbox) · Tauri 2

@@ -1,7 +1,7 @@
 {
   "name": "focusflow",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "build:pages": "node scripts/build.mjs pages",
     "icons": "python scripts/make-icons.py",
-    "build:tauri": "node scripts/build.mjs tauri"
+    "build:tauri": "node scripts/build.mjs tauri",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
   },
   "dependencies": {
     "lucide-react": "^1.45.0",
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
+    "@tauri-apps/cli": "^2.11.4",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

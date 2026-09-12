@@ -19,6 +19,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      // The desktop build is already offline by nature; a service worker inside
+      // Tauri's custom protocol adds nothing and complicates updates. Disabled
+      // still provides a no-op `virtual:pwa-register/react`, so App.tsx compiles.
+      disable: target === 'tauri',
       registerType: 'prompt',
       injectRegister: null,
       includeAssets: ['favicon.ico', 'icons/apple-touch-icon.png'],
