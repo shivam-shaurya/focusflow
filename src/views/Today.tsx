@@ -12,6 +12,7 @@ import { Cover } from '../components/ImagePicker'
 import { WEEKDAY_IDS } from '../lib/covers'
 import { QuoteCard } from '../components/QuoteCard'
 import { DeadlineNudge } from '../components/DeadlineNudge'
+import { AnimatedNumber, Aurora, Stagger, StaggerItem } from '../components/motion'
 
 export function Today() {
   const { state, updateTask, setDayCover } = useStore()
@@ -65,12 +66,13 @@ export function Today() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="rounded-[var(--radius-card)] border border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_7%,var(--color-surface))] p-5 shadow-[var(--shadow-raised)]"
+          className="relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_7%,var(--color-surface))] p-5 shadow-[var(--shadow-raised)]"
         >
-          <p className="flex items-center gap-2 text-xs font-bold tracking-wide uppercase text-[var(--color-primary)]">
+          <Aurora />
+          <p className="relative flex items-center gap-2 text-xs font-bold tracking-wide uppercase text-[var(--color-primary)]">
             <Star size={13} aria-hidden="true" /> If you only do one thing
           </p>
-          <p className="mt-2 text-xl font-bold">{theOne.title}</p>
+          <p className="relative mt-2 text-xl font-bold">{theOne.title}</p>
           {theOne.description.trim() && (
             <p className="mt-1 line-clamp-2 text-sm text-[var(--color-fg-muted)]">{theOne.description}</p>
           )}
@@ -79,8 +81,8 @@ export function Today() {
 
       <DeadlineNudge onOpen={() => { window.location.hash = '#/deadlines' }} />
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="flex flex-col gap-6">
+      <Stagger className="grid gap-6 lg:grid-cols-[1.6fr_1fr]" delay={0.06}>
+        <StaggerItem className="flex flex-col gap-6">
           <section className="overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-surface)] shadow-[var(--shadow-tile)]">
             <Cover
               src={cover}
@@ -93,7 +95,7 @@ export function Today() {
               <SectionTitle
                 title="Daily goals"
                 hint="Rename, reorder, or delete any of them. Click one to add detail."
-                action={<span className="text-2xl font-extrabold tabular-nums">{Math.round(pct)}%</span>}
+                action={<AnimatedNumber value={pct} suffix="%" className="text-2xl font-extrabold tabular-nums" />}
               />
               <Bar value={pct} label="Today's completion" />
               <div className="mt-3">
@@ -156,9 +158,9 @@ export function Today() {
               </p>
             )}
           </Card>
-        </div>
+        </StaggerItem>
 
-        <div className="flex flex-col gap-6">
+        <StaggerItem className="flex flex-col gap-6">
           <FocusTimer />
 
           <Card>
@@ -195,8 +197,8 @@ export function Today() {
               })}
             </div>
           </Card>
-        </div>
-      </div>
+        </StaggerItem>
+      </Stagger>
     </div>
   )
 }

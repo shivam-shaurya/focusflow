@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlignLeft, Check, Trash2 } from 'lucide-react'
+import { AlignLeft, Trash2 } from 'lucide-react'
 import type { Task } from '../lib/types'
 import { useStore } from '../lib/store'
 import { cx } from './ui'
+import { CheckBox } from './motion'
 
 /** Click the title to open the task and write a description. */
 export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boolean }) {
@@ -25,19 +26,12 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
           'transition-colors duration-150 hover:border-[var(--color-line)] hover:bg-[var(--color-surface-2)]',
         )}
       >
-        <button
-          onClick={() => toggleTask(task.id)}
-          aria-pressed={task.done}
-          aria-label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
-          className={cx(
-            'grid size-5 shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2 transition-colors duration-150',
-            task.done
-              ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
-              : 'border-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
-          )}
-        >
-          {task.done && <Check size={12} strokeWidth={3} />}
-        </button>
+        <CheckBox
+          checked={task.done}
+          onChange={() => toggleTask(task.id)}
+          label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
+          size="sm"
+        />
 
         <button
           onClick={() => setOpen((v) => !v)}

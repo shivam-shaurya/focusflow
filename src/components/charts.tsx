@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import { motion } from 'motion/react'
 import { cx } from './ui'
+import { AnimatedNumber } from './motion'
 
 export interface Datum {
   key: string
@@ -172,7 +173,15 @@ export function Stat({
             tone === 'accent' && 'text-[var(--color-accent)]',
           )}
         >
-          {value}
+          {/* Percentages arrive as "62%" strings; count those up too rather than
+              making them the one stat on the row that snaps into place. */}
+          {typeof value === 'number' ? (
+            <AnimatedNumber value={value} decimals={Number.isInteger(value) ? 0 : 1} />
+          ) : /^\d+(\.\d+)?%$/.test(value) ? (
+            <AnimatedNumber value={parseFloat(value)} suffix="%" />
+          ) : (
+            value
+          )}
         </span>
         {unit && <span className="text-sm font-semibold text-[var(--color-fg-muted)]">{unit}</span>}
       </p>

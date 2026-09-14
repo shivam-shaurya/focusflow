@@ -7,6 +7,7 @@ import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
 import { TaskRow } from '../components/TaskRow'
 import { GoalList } from '../components/GoalList'
 import { Cover } from '../components/ImagePicker'
+import { AnimatedNumber } from '../components/motion'
 import { WEEKDAY_IDS } from '../lib/covers'
 
 const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -89,7 +90,7 @@ export function Planner() {
         <SectionTitle
           title="Week progress"
           hint={`${weekDone} of ${weekTotal} check-ins (${state.goals.length} daily goals × 7 days, plus tasks)`}
-          action={<span className="text-2xl font-extrabold tabular-nums">{Math.round(pct)}%</span>}
+          action={<AnimatedNumber value={pct} suffix="%" className="text-2xl font-extrabold tabular-nums" />}
         />
         <Bar value={pct} label="Weekly completion" />
       </Card>

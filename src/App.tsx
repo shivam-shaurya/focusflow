@@ -16,6 +16,7 @@ import { cx } from './components/ui'
 import { OfflineBadge, PwaToasts } from './components/PwaToasts'
 import { StorageBanner } from './components/StorageBanner'
 import { requestPersistence, useOnline } from './lib/pwa'
+import { spring, viewVariants } from './lib/motion'
 
 type Route = 'today' | 'planner' | 'deadlines' | 'journal' | 'newme' | 'progress' | 'settings'
 
@@ -96,7 +97,7 @@ function Shell() {
         <Brand theme={state.settings.yearTheme} />
         <ul className="mt-6 flex flex-col gap-1">
           {NAV.map((n, i) => (
-            <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} />
+            <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} scope="rail" />
           ))}
         </ul>
         <div className="mt-auto flex flex-col gap-3">
@@ -145,7 +146,7 @@ function Shell() {
               </div>
               <ul className="mt-6 flex flex-col gap-1">
                 {NAV.map((n, i) => (
-                  <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} />
+                  <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} scope="drawer" />
                 ))}
               </ul>
             </motion.nav>
@@ -182,10 +183,10 @@ function Shell() {
           <AnimatePresence mode="wait">
             <motion.div
               key={route}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              variants={viewVariants}
+              initial="hidden"
+              animate="show"
+              exit="exit"
             >
               <Current />
             </motion.div>
@@ -212,30 +213,42 @@ function Brand({ theme }: { theme: string }) {
 }
 
 function NavItem({
-  item, index, active, onClick,
+  item, index, active, onClick, scope,
 }: {
   item: (typeof NAV)[number]
   index: number
   active: boolean
   onClick: () => void
+  /** Keeps the rail and the drawer from sharing one layoutId while both mount. */
+  scope: string
 }) {
   const Icon = item.icon
   return (
     <li>
-      <button
+      <motion.button
         onClick={onClick}
         aria-current={active ? 'page' : undefined}
+        whileTap={{ scale: 0.97 }}
+        transition={spring}
         className={cx(
-          'flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-[var(--radius-control)] px-3 text-sm font-semibold transition-colors duration-150',
+          'relative flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-[var(--radius-control)] px-3',
+          'text-sm font-semibold transition-colors duration-150',
           active
-            ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
+            ? 'text-[var(--color-on-primary)]'
             : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-fg)]',
         )}
       >
+        {active && (
+          <motion.span
+            layoutId={`nav-active-${scope}`}
+            transition={spring}
+            className="absolute inset-0 -z-10 rounded-[var(--radius-control)] bg-[var(--color-primary)]"
+          />
+        )}
         <Icon size={17} aria-hidden="true" />
         <span className="flex-1 text-left">{item.label}</span>
-        <span className={cx('text-xs opacity-50', active && 'opacity-70')}>{index + 1}</span>
-      </button>
+        <span className={cx('text-xs opacity-50', active && 'opacity-80')}>{index + 1}</span>
+      </motion.button>
     </li>
   )
 }

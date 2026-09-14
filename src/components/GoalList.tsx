@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { AlignLeft, Check, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
+import { AlignLeft, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { fmtLong } from '../lib/date'
 import { Button, cx } from './ui'
+import { CheckBox } from './motion'
 
 /**
  * The seven-per-day goal list. The name and emoji are shared across every day;
@@ -37,19 +38,12 @@ export function GoalList({
                   compact ? 'py-1.5' : 'py-2',
                 )}
               >
-                <button
-                  onClick={() => toggleGoal(g.id, date)}
-                  aria-pressed={on}
-                  aria-label={on ? `Uncheck ${g.name}` : `Check ${g.name}`}
-                  className={cx(
-                    'grid size-5 shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2 transition-colors duration-150',
-                    on
-                      ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
-                      : 'border-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
-                  )}
-                >
-                  {on && <Check size={12} strokeWidth={3} />}
-                </button>
+                <CheckBox
+                  checked={on}
+                  onChange={() => toggleGoal(g.id, date)}
+                  label={on ? `Uncheck ${g.name}` : `Check ${g.name}`}
+                  size="sm"
+                />
 
                 <span aria-hidden="true" className="shrink-0 text-sm">{g.emoji}</span>
 

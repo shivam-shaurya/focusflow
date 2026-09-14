@@ -1,4 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+import { spring } from '../../lib/motion'
 
 export const cx = (...v: Array<string | false | null | undefined>) => v.filter(Boolean).join(' ')
 
@@ -37,24 +39,33 @@ export function Card({
   as: As = 'section',
   elevation = 'tile',
   tone = 'default',
+  hover = false,
 }: {
   children: ReactNode
   className?: string
   as?: 'section' | 'div' | 'article' | 'figure'
   elevation?: Elevation
   tone?: CardTone
+  /** Lift on pointer hover — only for tiles that are themselves interactive. */
+  hover?: boolean
 }) {
+  const reduce = useReducedMotion()
+  const classes = cx(
+    'rounded-[var(--radius-card)] border p-5',
+    ELEVATION[elevation],
+    CARD_TONE[tone],
+    className,
+  )
+  if (!hover || reduce) return <As className={classes}>{children}</As>
+  const M = motion[As]
   return (
-    <As
-      className={cx(
-        'rounded-[var(--radius-card)] border p-5',
-        ELEVATION[elevation],
-        CARD_TONE[tone],
-        className,
-      )}
+    <M
+      className={classes}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-raised)' }}
+      transition={spring}
     >
       {children}
-    </As>
+    </M>
   )
 }
 
@@ -141,30 +152,11 @@ export function Pill({
   )
 }
 
-/** Accessible progress bar: value is also exposed as text next to it by callers. */
-export function Bar({
-  value, label, tone = 'primary',
-}: { value: number; label: string; tone?: 'primary' | 'accent' }) {
-  const pct = Math.max(0, Math.min(100, Math.round(value)))
-  return (
-    <div
-      role="progressbar"
-      aria-label={label}
-      aria-valuenow={pct}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      className="h-2.5 w-full overflow-hidden rounded-[var(--radius-micro)] bg-[var(--color-surface-2)]"
-    >
-      <div
-        className={cx(
-          'h-full rounded-[var(--radius-micro)] transition-[width] duration-500 ease-out',
-          tone === 'accent' ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-primary)]',
-        )}
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  )
-}
+/**
+ * Accessible progress bar. Re-exported from the motion layer so every existing
+ * call site picks up the spring fill and sheen without being touched.
+ */
+export { MotionBar as Bar } from '../motion'
 
 export function Empty({ icon, title, hint }: { icon: ReactNode; title: string; hint?: string }) {
   return (
