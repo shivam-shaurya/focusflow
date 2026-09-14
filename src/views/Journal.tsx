@@ -31,7 +31,7 @@ function Scale({
             aria-checked={value === m.v}
             onClick={() => onChange(m.v)}
             className={cx(
-              'min-h-11 flex-1 cursor-pointer rounded-lg border px-2 text-xs font-semibold transition-colors duration-150',
+              'min-h-11 flex-1 cursor-pointer rounded-[var(--radius-control)] border px-2 text-xs font-semibold transition-colors duration-150',
               value === m.v
                 ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                 : 'bg-[var(--color-surface-2)] text-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
@@ -91,7 +91,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
             max={todayISO()}
             onChange={(e) => e.target.value && setDate(e.target.value)}
             aria-label="Journal date"
-            className="min-h-9 cursor-pointer rounded-lg border bg-[var(--color-surface-2)] px-2 text-sm font-semibold"
+            className="min-h-9 cursor-pointer rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-2 text-sm font-semibold"
           />
           <Button
             size="sm"
@@ -127,7 +127,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
                   onClick={() => setTemplateId(t.id)}
                   aria-pressed={templateId === t.id}
                   className={cx(
-                    'min-h-9 cursor-pointer rounded-lg border px-3 text-sm font-semibold transition-colors duration-150',
+                    'min-h-9 cursor-pointer rounded-[var(--radius-control)] border px-3 text-sm font-semibold transition-colors duration-150',
                     templateId === t.id
                       ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                       : 'text-[var(--color-fg-muted)] hover:border-[var(--color-primary)] hover:text-[var(--color-fg)]',
@@ -164,7 +164,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
                       onChange={(e) => setAnswers((a) => ({ ...a, [f.id]: e.target.value }))}
                       rows={f.rows ?? 3}
                       placeholder="Write badly. Nobody is reading this."
-                      className="mt-2 w-full resize-y rounded-lg border bg-[var(--color-surface-2)] p-3 text-sm leading-relaxed outline-none placeholder:text-[var(--color-fg-muted)]"
+                      className="mt-2 w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-3 text-sm leading-relaxed outline-none placeholder:text-[var(--color-fg-muted)]"
                     />
                   </div>
                 ))}
@@ -179,7 +179,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
               onChange={(e) => setFreeform(e.target.value)}
               rows={6}
               aria-label="Free writing"
-              className="w-full resize-y rounded-lg border bg-[var(--color-surface-2)] p-3 text-sm leading-relaxed outline-none"
+              className="w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-3 text-sm leading-relaxed outline-none"
             />
             <div className="mt-4 flex items-center gap-3">
               <Button variant="primary" onClick={save}>
@@ -201,7 +201,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
                 <button
                   onClick={() => setDate(j.date)}
                   className={cx(
-                    'w-full cursor-pointer rounded-lg border px-3 py-2 text-left transition-colors duration-150 hover:bg-[var(--color-surface-2)]',
+                    'w-full cursor-pointer rounded-[var(--radius-control)] border px-3 py-2 text-left transition-colors duration-150 hover:bg-[var(--color-surface-2)]',
                     j.date === date && 'border-[var(--color-primary)]',
                   )}
                 >

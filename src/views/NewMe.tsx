@@ -13,8 +13,8 @@ const TONES: Record<BlockTone, string> = {
   neutral: 'border-[var(--color-line)] bg-[var(--color-surface)]',
   warn: 'border-[color-mix(in_oklab,var(--color-accent)_45%,var(--color-line))] bg-[color-mix(in_oklab,var(--color-accent)_7%,var(--color-surface))]',
   danger: 'border-[color-mix(in_oklab,var(--color-destructive)_45%,var(--color-line))] bg-[color-mix(in_oklab,var(--color-destructive)_7%,var(--color-surface))]',
-  gold: 'border-[color-mix(in_oklab,#eab308_45%,var(--color-line))] bg-[color-mix(in_oklab,#eab308_7%,var(--color-surface))]',
-  blue: 'border-[color-mix(in_oklab,#3b82f6_45%,var(--color-line))] bg-[color-mix(in_oklab,#3b82f6_7%,var(--color-surface))]',
+  gold: 'border-[color-mix(in_oklab,var(--color-tone-gold)_45%,var(--color-line))] bg-[color-mix(in_oklab,var(--color-tone-gold)_8%,var(--color-surface))]',
+  blue: 'border-[color-mix(in_oklab,var(--color-tone-blue)_45%,var(--color-line))] bg-[color-mix(in_oklab,var(--color-tone-blue)_8%,var(--color-surface))]',
 }
 
 const TONE_LABELS: Array<[BlockTone, string]> = [
@@ -122,7 +122,7 @@ function BlockCard({
                   onClick={(e) => e.stopPropagation()}
                   onChange={(e) => updateBlock(block.id, { title: e.target.value })}
                   aria-label="Section title"
-                  className="w-full rounded bg-transparent text-lg font-extrabold outline-none focus:bg-[var(--color-surface-2)]"
+                  className="w-full rounded-[var(--radius-micro)] bg-transparent text-lg font-extrabold outline-none focus:bg-[var(--color-surface-2)]"
                 />
               ) : (
                 <span className="block text-lg font-extrabold tracking-tight">{block.title}</span>
@@ -134,7 +134,7 @@ function BlockCard({
                   onChange={(e) => updateBlock(block.id, { subtitle: e.target.value })}
                   placeholder="Subtitle"
                   aria-label="Section subtitle"
-                  className="mt-0.5 w-full rounded bg-transparent text-sm text-[var(--color-fg-muted)] outline-none focus:bg-[var(--color-surface-2)]"
+                  className="mt-0.5 w-full rounded-[var(--radius-micro)] bg-transparent text-sm text-[var(--color-fg-muted)] outline-none focus:bg-[var(--color-surface-2)]"
                 />
               ) : (
                 block.subtitle && (
@@ -150,7 +150,7 @@ function BlockCard({
                 onClick={() => moveBlock(block.id, -1)}
                 disabled={index === 0}
                 aria-label="Move section up"
-                className="cursor-pointer rounded p-1.5 text-[var(--color-fg-muted)] disabled:opacity-30"
+                className="cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] disabled:opacity-30"
               >
                 <ChevronUp size={15} />
               </button>
@@ -158,7 +158,7 @@ function BlockCard({
                 onClick={() => moveBlock(block.id, 1)}
                 disabled={index === count - 1}
                 aria-label="Move section down"
-                className="cursor-pointer rounded p-1.5 text-[var(--color-fg-muted)] disabled:opacity-30"
+                className="cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] disabled:opacity-30"
               >
                 <ChevronDown size={15} />
               </button>
@@ -185,7 +185,7 @@ function BlockCard({
                 onClick={() => updateBlock(block.id, { tone })}
                 aria-pressed={block.tone === tone}
                 className={cx(
-                  'min-h-8 cursor-pointer rounded-md border px-2 text-xs font-semibold',
+                  'min-h-8 cursor-pointer rounded-[var(--radius-micro)] border px-2 text-xs font-semibold',
                   TONES[tone],
                   block.tone === tone && 'ring-2 ring-[var(--color-primary)]',
                 )}
@@ -236,7 +236,7 @@ function Item({
   onRemove: () => void
 }) {
   const shared =
-    'w-full resize-none rounded-lg border border-transparent bg-transparent p-2 text-sm leading-relaxed ' +
+    'w-full resize-none rounded-[var(--radius-control)] border border-transparent bg-transparent p-2 text-sm leading-relaxed ' +
     'outline-none focus:border-[var(--color-line)] focus:bg-[var(--color-surface-2)]'
 
   return (
@@ -247,7 +247,7 @@ function Item({
           aria-pressed={!!item.done}
           aria-label={item.done ? `Uncheck ${item.text}` : `Check ${item.text}`}
           className={cx(
-            'mt-2 grid size-5 shrink-0 cursor-pointer place-items-center rounded border-2 transition-colors duration-150',
+            'mt-2 grid size-5 shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2 transition-colors duration-150',
             item.done
               ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
               : 'border-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
@@ -278,7 +278,7 @@ function Item({
               rows={3}
               placeholder="Answer…"
               aria-label={`Answer to: ${item.text}`}
-              className="mt-1 w-full resize-y rounded-lg border bg-[var(--color-surface-2)] p-2.5 text-sm leading-relaxed outline-none"
+              className="mt-1 w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-2.5 text-sm leading-relaxed outline-none"
             />
           </>
         ) : kind === 'links' ? (
@@ -303,7 +303,7 @@ function Item({
                 target="_blank"
                 rel="noreferrer noopener"
                 aria-label={`Open ${item.text}`}
-                className="rounded-md p-2 text-[var(--color-primary)] hover:bg-[var(--color-surface-2)]"
+                className="rounded-[var(--radius-micro)] p-2 text-[var(--color-primary)] hover:bg-[var(--color-surface-2)]"
               >
                 <ExternalLink size={15} />
               </a>
@@ -313,7 +313,7 @@ function Item({
                 src={item.image}
                 height={120}
                 label={`${item.text || 'Link'} image`}
-                rounded="rounded-lg"
+                rounded="rounded-[var(--radius-control)]"
                 onChange={(url) => onChange({ image: url })}
               />
             </div>
@@ -337,7 +337,7 @@ function Item({
       <button
         onClick={onRemove}
         aria-label="Delete line"
-        className="mt-2 shrink-0 cursor-pointer rounded-md p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
+        className="mt-2 shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
       >
         <Trash2 size={14} />
       </button>

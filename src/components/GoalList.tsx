@@ -33,7 +33,7 @@ export function GoalList({
             <li key={g.id} className="group">
               <div
                 className={cx(
-                  'flex items-center gap-2.5 rounded-lg px-2 transition-colors duration-150 hover:bg-[var(--color-surface-2)]',
+                  'flex items-center gap-2.5 rounded-[var(--radius-control)] px-2 transition-colors duration-150 hover:bg-[var(--color-surface-2)]',
                   compact ? 'py-1.5' : 'py-2',
                 )}
               >
@@ -42,7 +42,7 @@ export function GoalList({
                   aria-pressed={on}
                   aria-label={on ? `Uncheck ${g.name}` : `Check ${g.name}`}
                   className={cx(
-                    'grid size-5 shrink-0 cursor-pointer place-items-center rounded border-2 transition-colors duration-150',
+                    'grid size-5 shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2 transition-colors duration-150',
                     on
                       ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                       : 'border-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
@@ -78,7 +78,7 @@ export function GoalList({
                       onClick={() => moveGoal(g.id, -1)}
                       disabled={i === 0}
                       aria-label={`Move ${g.name} up`}
-                      className="cursor-pointer rounded p-1 text-[var(--color-fg-muted)] disabled:opacity-30"
+                      className="cursor-pointer rounded-[var(--radius-micro)] p-1 text-[var(--color-fg-muted)] disabled:opacity-30"
                     >
                       <ChevronUp size={13} />
                     </button>
@@ -86,7 +86,7 @@ export function GoalList({
                       onClick={() => moveGoal(g.id, 1)}
                       disabled={i === goals.length - 1}
                       aria-label={`Move ${g.name} down`}
-                      className="cursor-pointer rounded p-1 text-[var(--color-fg-muted)] disabled:opacity-30"
+                      className="cursor-pointer rounded-[var(--radius-micro)] p-1 text-[var(--color-fg-muted)] disabled:opacity-30"
                     >
                       <ChevronDown size={13} />
                     </button>
@@ -103,7 +103,7 @@ export function GoalList({
                     transition={{ duration: 0.18, ease: 'easeOut' }}
                     className="overflow-hidden"
                   >
-                    <div className="mb-2 ml-2 flex flex-col gap-3 rounded-lg border bg-[var(--color-surface-2)] p-3">
+                    <div className="mb-2 ml-2 flex flex-col gap-3 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-3">
                       {scope === 'day' ? (
                         <label className="flex flex-col gap-1.5">
                           <span className="text-xs font-bold uppercase tracking-wide text-[var(--color-primary)]">
@@ -114,7 +114,7 @@ export function GoalList({
                             onChange={(e) => setGoalNote(g.id, date, e.target.value)}
                             rows={3}
                             placeholder="What does this look like today? Chapter, set, call, page…"
-                            className="w-full resize-y rounded-lg border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
+                            className="w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
                           />
                           <span className="text-xs text-[var(--color-fg-muted)]">
                             This note belongs to this day only. Other days keep theirs.
@@ -130,13 +130,13 @@ export function GoalList({
                             onChange={(e) => updateGoal(g.id, { description: e.target.value })}
                             rows={3}
                             placeholder="What counts as done, in general?"
-                            className="w-full resize-y rounded-lg border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
+                            className="w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
                           />
                         </label>
                       )}
 
                       {scope === 'day' && g.description.trim() && (
-                        <p className="rounded-lg border border-dashed p-2.5 text-xs leading-relaxed text-[var(--color-fg-muted)]">
+                        <p className="rounded-[var(--radius-control)] border border-dashed p-2.5 text-xs leading-relaxed text-[var(--color-fg-muted)]">
                           <span className="font-bold">Shared: </span>{g.description}
                         </p>
                       )}
@@ -150,14 +150,14 @@ export function GoalList({
                             value={g.emoji}
                             onChange={(e) => updateGoal(g.id, { emoji: e.target.value.slice(0, 4) })}
                             aria-label={`Emoji for ${g.name}`}
-                            className="min-h-10 w-12 rounded-lg border bg-[var(--color-surface)] text-center text-sm"
+                            className="min-h-10 w-12 rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-center text-sm"
                           />
                           <input
                             value={g.name}
                             onChange={(e) => updateGoal(g.id, { name: e.target.value })}
                             aria-label="Goal name"
                             placeholder="Goal name"
-                            className="min-h-10 min-w-0 flex-1 rounded-lg border bg-[var(--color-surface)] px-3 text-sm font-semibold outline-none"
+                            className="min-h-10 min-w-0 flex-1 rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-3 text-sm font-semibold outline-none"
                           />
                         </div>
                       </div>

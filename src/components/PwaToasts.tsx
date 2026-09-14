@@ -42,7 +42,7 @@ export function PwaToasts() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-50 flex max-w-[min(22rem,calc(100vw-2rem))] items-start gap-3 rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4 shadow-lg shadow-black/20"
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-50 flex max-w-[min(22rem,calc(100vw-2rem))] items-start gap-3 rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4 shadow-[var(--shadow-overlay)]"
         >
           <span className="mt-0.5 shrink-0 text-[var(--color-primary)]" aria-hidden="true">
             {needRefresh ? <RefreshCw size={18} /> : <Download size={18} />}
@@ -81,7 +81,7 @@ export function PwaToasts() {
               setNeedRefresh(false)
             }}
             aria-label="Dismiss"
-            className="shrink-0 cursor-pointer rounded-md p-1 text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)]"
+            className="shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1 text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)]"
           >
             <X size={15} />
           </button>

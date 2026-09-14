@@ -138,7 +138,7 @@ function NewDeadline() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Finish the DIP syllabus"
-            className="min-h-11 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+            className="min-h-11 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
           />
         </label>
 
@@ -150,7 +150,7 @@ function NewDeadline() {
               value={due}
               min={todayISO()}
               onChange={(e) => setDue(e.target.value)}
-              className="min-h-11 cursor-pointer rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+              className="min-h-11 cursor-pointer rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold">
@@ -162,7 +162,7 @@ function NewDeadline() {
               value={hours}
               onChange={(e) => setHours(e.target.value)}
               placeholder="e.g. 40"
-              className="min-h-11 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+              className="min-h-11 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
             />
           </label>
         </div>
@@ -185,7 +185,7 @@ function NewDeadline() {
                   aria-pressed={on}
                   aria-label={DAY_NAMES_FULL[i]}
                   className={cx(
-                    'h-10 flex-1 cursor-pointer rounded-lg border text-xs font-bold transition-colors duration-150',
+                    'h-10 flex-1 cursor-pointer rounded-[var(--radius-control)] border text-xs font-bold transition-colors duration-150',
                     on
                       ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                       : 'bg-[var(--color-surface-2)] text-[var(--color-fg-muted)]',
@@ -205,7 +205,7 @@ function NewDeadline() {
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
             placeholder="Chapters, modules, what “done” means…"
-            className="resize-y rounded-lg border bg-[var(--color-surface-2)] p-2.5 text-sm outline-none"
+            className="resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-2.5 text-sm outline-none"
           />
         </label>
 
@@ -292,13 +292,13 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
       )}
 
       {s.finished && (
-        <p className="mt-4 rounded-lg border border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_10%,transparent)] p-3 text-sm font-semibold text-[var(--color-primary)]">
+        <p className="mt-4 rounded-[var(--radius-control)] border border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_10%,transparent)] p-3 text-sm font-semibold text-[var(--color-primary)]">
           All {d.totalHours} hours logged. Archive it when you are ready.
         </p>
       )}
 
       {!archived && !s.finished && s.workdaysLeft === 0 && !s.overdue && (
-        <p className="mt-4 rounded-lg border border-[var(--color-destructive)] p-3 text-sm">
+        <p className="mt-4 rounded-[var(--radius-control)] border border-[var(--color-destructive)] p-3 text-sm">
           No working days left before the due date. Either widen the working days above,
           move the date, or cut the scope — the current plan cannot fit.
         </p>
@@ -329,7 +329,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
               onChange={(e) => setLogValue(e.target.value)}
               placeholder="hrs"
               aria-label={`Hours to log against ${d.title}`}
-              className="min-h-9 w-20 rounded-lg border bg-[var(--color-surface-2)] px-2 text-sm outline-none"
+              className="min-h-9 w-20 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-2 text-sm outline-none"
             />
             <Button size="sm" type="submit" variant="primary">Add</Button>
           </form>
@@ -357,8 +357,8 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="mt-3 flex flex-col gap-3 rounded-lg border bg-[var(--color-surface-2)] p-3">
-              <div className="flex rounded-lg border bg-[var(--color-surface)] p-0.5" role="tablist" aria-label="Plan granularity">
+            <div className="mt-3 flex flex-col gap-3 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-3">
+              <div className="flex rounded-[var(--radius-control)] border bg-[var(--color-surface)] p-0.5" role="tablist" aria-label="Plan granularity">
                 {GRANULARITIES.map(([g, label]) => (
                   <button
                     key={g}
@@ -366,7 +366,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
                     aria-selected={gran === g}
                     onClick={() => setGran(g)}
                     className={cx(
-                      'min-h-9 flex-1 cursor-pointer rounded-md px-3 text-sm font-semibold transition-colors duration-150',
+                      'min-h-9 flex-1 cursor-pointer rounded-[var(--radius-micro)] px-3 text-sm font-semibold transition-colors duration-150',
                       gran === g
                         ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                         : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]',
@@ -439,7 +439,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
                         <button
                           onClick={() => removeDeadlineLog(d.id, l.id)}
                           aria-label={`Remove ${l.hours} hours logged on ${l.date}`}
-                          className="cursor-pointer rounded p-1 text-[var(--color-fg-muted)] hover:text-[var(--color-destructive)]"
+                          className="cursor-pointer rounded-[var(--radius-micro)] p-1 text-[var(--color-fg-muted)] hover:text-[var(--color-destructive)]"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -456,7 +456,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
                     type="date"
                     value={d.due}
                     onChange={(e) => e.target.value && updateDeadline(d.id, { due: e.target.value })}
-                    className="min-h-9 cursor-pointer rounded-lg border bg-[var(--color-surface)] px-2 text-sm"
+                    className="min-h-9 cursor-pointer rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-2 text-sm"
                   />
                 </label>
                 <label className="flex items-center gap-2 text-xs font-semibold">
@@ -469,7 +469,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
                     onChange={(e) =>
                       updateDeadline(d.id, { totalHours: Math.max(0.5, Number(e.target.value)) })
                     }
-                    className="min-h-9 w-24 rounded-lg border bg-[var(--color-surface)] px-2 text-sm"
+                    className="min-h-9 w-24 rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-2 text-sm"
                   />
                 </label>
                 <span className="flex items-center gap-1">
@@ -488,7 +488,7 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
                         aria-pressed={on}
                         aria-label={DAY_NAMES_FULL[i]}
                         className={cx(
-                          'size-8 cursor-pointer rounded-md border text-xs font-bold',
+                          'size-8 cursor-pointer rounded-[var(--radius-micro)] border text-xs font-bold',
                           on
                             ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                             : 'bg-[var(--color-surface)] text-[var(--color-fg-muted)]',
@@ -535,7 +535,7 @@ function Metric({
   return (
     <div
       className={cx(
-        'rounded-lg border p-3',
+        'rounded-[var(--radius-control)] border p-3',
         strong
           ? 'border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_8%,transparent)]'
           : 'bg-[var(--color-surface-2)]',

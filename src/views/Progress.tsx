@@ -98,7 +98,7 @@ export function Progress() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-lg border p-0.5" role="tablist" aria-label="Time range">
+          <div className="flex rounded-[var(--radius-control)] border p-0.5" role="tablist" aria-label="Time range">
             {RANGES.map((r) => (
               <button
                 key={r.id}
@@ -106,7 +106,7 @@ export function Progress() {
                 aria-selected={range === r.id}
                 onClick={() => { setRange(r.id); setOffset(0) }}
                 className={cx(
-                  'min-h-9 cursor-pointer rounded-md px-3 text-sm font-semibold transition-colors duration-150',
+                  'min-h-9 cursor-pointer rounded-[var(--radius-micro)] px-3 text-sm font-semibold transition-colors duration-150',
                   range === r.id
                     ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                     : 'text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]',
@@ -197,7 +197,7 @@ export function Progress() {
         <Heatmap cells={heatCells} title={`Goals and tasks completed each day of ${anchor.getFullYear()}`} />
       </Card>
 
-      <details className="rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-5">
+      <details className="rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-5 shadow-[var(--shadow-tile)]">
         <summary className="cursor-pointer text-sm font-bold">View as table</summary>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">

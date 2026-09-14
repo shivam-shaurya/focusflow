@@ -83,7 +83,7 @@ function Shell() {
     <div className="flex min-h-full">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-[var(--color-primary)] focus:px-4 focus:py-2 focus:font-semibold focus:text-[var(--color-on-primary)]"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-control)] focus:bg-[var(--color-primary)] focus:px-4 focus:py-2 focus:font-semibold focus:text-[var(--color-on-primary)]"
       >
         Skip to content
       </a>
@@ -102,7 +102,7 @@ function Shell() {
         <div className="mt-auto flex flex-col gap-3">
         <OfflineBadge online={online} />
         <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
-          Press <kbd className="rounded border px-1">1</kbd>–<kbd className="rounded border px-1">7</kbd> to
+          Press <kbd className="rounded-[var(--radius-micro)] border px-1">1</kbd>–<kbd className="rounded-[var(--radius-micro)] border px-1">7</kbd> to
           switch views.{' '}
           {saveStatus === 'saved'
             ? 'Everything saves automatically.'
@@ -121,7 +121,7 @@ function Shell() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-50 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-50 bg-[var(--color-scrim)] lg:hidden"
             onClick={() => setNavOpen(false)}
           >
             <motion.nav
@@ -138,7 +138,7 @@ function Shell() {
                 <button
                   onClick={() => setNavOpen(false)}
                   aria-label="Close menu"
-                  className="cursor-pointer rounded-lg p-2 hover:bg-[var(--color-surface-2)]"
+                  className="cursor-pointer rounded-[var(--radius-control)] p-2 hover:bg-[var(--color-surface-2)]"
                 >
                   <X size={18} />
                 </button>
@@ -164,7 +164,7 @@ function Shell() {
             <button
               onClick={() => setNavOpen(true)}
               aria-label="Open menu"
-              className="cursor-pointer rounded-lg p-2 hover:bg-[var(--color-surface-2)]"
+              className="cursor-pointer rounded-[var(--radius-control)] p-2 hover:bg-[var(--color-surface-2)]"
             >
               <Menu size={20} />
             </button>
@@ -226,7 +226,7 @@ function NavItem({
         onClick={onClick}
         aria-current={active ? 'page' : undefined}
         className={cx(
-          'flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors duration-150',
+          'flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-[var(--radius-control)] px-3 text-sm font-semibold transition-colors duration-150',
           active
             ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
             : 'text-[var(--color-fg-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-fg)]',

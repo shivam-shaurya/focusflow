@@ -65,7 +65,7 @@ export function Today() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="rounded-[var(--radius-card)] border-2 border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_10%,var(--color-surface))] p-5"
+          className="rounded-[var(--radius-card)] border border-[var(--color-primary)] bg-[color-mix(in_oklab,var(--color-primary)_7%,var(--color-surface))] p-5 shadow-[var(--shadow-raised)]"
         >
           <p className="flex items-center gap-2 text-xs font-bold tracking-wide uppercase text-[var(--color-primary)]">
             <Star size={13} aria-hidden="true" /> If you only do one thing
@@ -81,7 +81,7 @@ export function Today() {
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="flex flex-col gap-6">
-          <section className="overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-surface)]">
+          <section className="overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-surface)] shadow-[var(--shadow-tile)]">
             <Cover
               src={cover}
               height={140}

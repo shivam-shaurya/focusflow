@@ -63,7 +63,7 @@ export function BarChart({
                   <div
                     role="tooltip"
                     id={`${id}-tip`}
-                    className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[180px] -translate-x-1/2 rounded-lg border bg-[var(--color-surface)] px-2.5 py-1.5 text-xs shadow-lg"
+                    className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-[180px] -translate-x-1/2 rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-2.5 py-1.5 text-xs shadow-[var(--shadow-overlay)]"
                   >
                     <span className="font-bold">{d.label}</span>
                     <span className="ml-2 tabular-nums">{d.value}{unit}</span>
@@ -163,7 +163,7 @@ export function Stat({
   label, value, unit, sub, tone = 'default',
 }: { label: string; value: string | number; unit?: string; sub?: string; tone?: 'default' | 'accent' }) {
   return (
-    <div className="rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4">
+    <div className="rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4 shadow-[var(--shadow-tile)]">
       <p className="text-xs font-bold tracking-wide uppercase text-[var(--color-fg-muted)]">{label}</p>
       <p className="mt-1.5 flex items-baseline gap-1">
         <span

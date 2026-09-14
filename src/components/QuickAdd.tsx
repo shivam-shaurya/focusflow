@@ -23,7 +23,7 @@ export function QuickAdd({ date, placeholder = 'Add a task…' }: { date?: strin
         onChange={(e) => setTitle(e.target.value)}
         placeholder={placeholder}
         aria-label="New task"
-        className="min-h-11 min-w-0 flex-1 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none placeholder:text-[var(--color-fg-muted)]"
+        className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none placeholder:text-[var(--color-fg-muted)]"
       />
       <Button type="submit" variant="primary" aria-label="Add task">
         <Plus size={16} /> Add

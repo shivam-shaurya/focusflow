@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Quote as QuoteIcon } from 'lucide-react'
 import { quoteOfTheDay } from '../lib/quotes'
 import { todayISO } from '../lib/date'
+import { Card } from './ui'
 
 /**
  * One quote, fixed for the day. Derived from the date rather than stored or
@@ -12,13 +13,13 @@ export function QuoteCard({ date = todayISO() }: { date?: string }) {
   const q = useMemo(() => quoteOfTheDay(date), [date])
 
   return (
-    <figure className="m-0 rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-5">
+    <Card as="figure" className="m-0">
       <QuoteIcon
         size={16}
         className="text-[var(--color-primary)]"
         aria-hidden="true"
       />
-      <blockquote className="mt-2 text-balance text-base font-semibold leading-relaxed">
+      <blockquote className="mt-2 text-balance text-base font-medium leading-relaxed">
         {q.text}
       </blockquote>
       {q.author && (
@@ -26,6 +27,6 @@ export function QuoteCard({ date = todayISO() }: { date?: string }) {
           — {q.author}
         </figcaption>
       )}
-    </figure>
+    </Card>
   )
 }

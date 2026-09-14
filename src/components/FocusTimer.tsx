@@ -98,7 +98,7 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
             <select
               value={taskId}
               onChange={(e) => setTaskId(e.target.value)}
-              className="min-h-11 w-full cursor-pointer truncate rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium text-[var(--color-fg)]"
+              className="min-h-11 w-full cursor-pointer truncate rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium text-[var(--color-fg)]"
             >
               <option value="">Nothing specific</option>
               {open.map((t) => (

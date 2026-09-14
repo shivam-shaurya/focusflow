@@ -55,7 +55,7 @@ export function Countdown({ msLeft, compact = false }: { msLeft: number; compact
           <div
             key={unit}
             className={cx(
-              'min-w-14 rounded-lg border px-2 py-1.5 text-center',
+              'min-w-14 rounded-[var(--radius-control)] border px-2 py-1.5 text-center',
               p.negative
                 ? 'border-[var(--color-destructive)] bg-[color-mix(in_oklab,var(--color-destructive)_10%,transparent)]'
                 : urgent

@@ -39,7 +39,7 @@ export function Planner() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       {/* Banner — the page's own cover, like a Notion header. */}
-      <div className="overflow-hidden rounded-[var(--radius-card)] border">
+      <div className="overflow-hidden rounded-[var(--radius-card)] border shadow-[var(--shadow-tile)]">
         <Cover
           src={state.settings.banner}
           height={180}
@@ -65,7 +65,7 @@ export function Planner() {
                 value={state.settings.boardTitle}
                 onChange={(e) => setSettings({ boardTitle: e.target.value })}
                 aria-label="Board title"
-                className="w-full truncate rounded-lg bg-transparent text-2xl font-extrabold tracking-tight outline-none focus:bg-[var(--color-surface-2)] sm:text-3xl"
+                className="w-full truncate rounded-[var(--radius-control)] bg-transparent text-2xl font-extrabold tracking-tight outline-none focus:bg-[var(--color-surface-2)] sm:text-3xl"
               />
               <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
                 <CalendarDays size={14} aria-hidden="true" />
@@ -110,7 +110,9 @@ export function Planner() {
               transition={{ duration: 0.2, delay: i * 0.03, ease: 'easeOut' }}
               className={cx(
                 'flex flex-col overflow-hidden rounded-[var(--radius-card)] border bg-[var(--color-surface)]',
-                isToday(day) && 'border-[var(--color-primary)] ring-1 ring-[var(--color-primary)]',
+                isToday(day)
+                  ? 'border-[var(--color-primary)] shadow-[var(--shadow-raised)]'
+                  : 'shadow-[var(--shadow-tile)]',
               )}
             >
               <Cover
@@ -162,7 +164,7 @@ export function Planner() {
                     onChange={(e) => setDrafts((d) => ({ ...d, [day]: e.target.value }))}
                     placeholder="+ Add a one-off task"
                     aria-label={`Add a task on ${DAY_FULL[i]}`}
-                    className="min-h-10 w-full rounded-lg border border-dashed bg-transparent px-3 text-sm outline-none placeholder:text-[var(--color-fg-muted)] focus:border-solid focus:bg-[var(--color-surface-2)]"
+                    className="min-h-10 w-full rounded-[var(--radius-control)] border border-dashed bg-transparent px-3 text-sm outline-none placeholder:text-[var(--color-fg-muted)] focus:border-solid focus:bg-[var(--color-surface-2)]"
                   />
                 </form>
               </div>
@@ -184,7 +186,7 @@ export function Planner() {
                   id={`sched-${t.id}`}
                   value=""
                   onChange={(e) => e.target.value && updateTask(t.id, { date: e.target.value, bucket: 'week' })}
-                  className="min-h-9 cursor-pointer rounded-md border bg-[var(--color-surface-2)] px-2 text-xs font-semibold"
+                  className="min-h-9 cursor-pointer rounded-[var(--radius-micro)] border bg-[var(--color-surface-2)] px-2 text-xs font-semibold"
                 >
                   <option value="">Plan…</option>
                   {days.map((d, k) => (

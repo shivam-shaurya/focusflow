@@ -21,7 +21,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
     >
       <div
         className={cx(
-          'flex items-center gap-2.5 rounded-lg border border-transparent px-2 py-2',
+          'flex items-center gap-2.5 rounded-[var(--radius-control)] border border-transparent px-2 py-2',
           'transition-colors duration-150 hover:border-[var(--color-line)] hover:bg-[var(--color-surface-2)]',
         )}
       >
@@ -30,7 +30,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
           aria-pressed={task.done}
           aria-label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
           className={cx(
-            'grid size-5 shrink-0 cursor-pointer place-items-center rounded border-2 transition-colors duration-150',
+            'grid size-5 shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2 transition-colors duration-150',
             task.done
               ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
               : 'border-[var(--color-fg-muted)] hover:border-[var(--color-primary)]',
@@ -62,7 +62,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
         <button
           onClick={() => removeTask(task.id)}
           aria-label={`Delete "${task.title}"`}
-          className="shrink-0 cursor-pointer rounded-md p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
+          className="shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
         >
           <Trash2 size={14} />
         </button>
@@ -77,12 +77,12 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
             transition={{ duration: 0.18, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="mb-2 ml-2 flex flex-col gap-2 rounded-lg border bg-[var(--color-surface-2)] p-3">
+            <div className="mb-2 ml-2 flex flex-col gap-2 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] p-3">
               <input
                 value={task.title}
                 onChange={(e) => updateTask(task.id, { title: e.target.value })}
                 aria-label="Task title"
-                className="min-h-10 w-full rounded-lg border bg-[var(--color-surface)] px-3 text-sm font-semibold outline-none"
+                className="min-h-10 w-full rounded-[var(--radius-control)] border bg-[var(--color-surface)] px-3 text-sm font-semibold outline-none"
               />
               <textarea
                 value={task.description}
@@ -90,7 +90,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
                 rows={4}
                 placeholder="Description — the detail, the link, the first step…"
                 aria-label="Task description"
-                className="w-full resize-y rounded-lg border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
+                className="w-full resize-y rounded-[var(--radius-control)] border bg-[var(--color-surface)] p-2.5 text-sm leading-relaxed outline-none"
               />
             </div>
           </motion.div>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Download, Monitor, Moon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
-import { Button, Card, SectionTitle, cx } from '../components/ui'
+import { Alert, Button, Card, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 import { WEEKDAY_IDS } from '../lib/covers'
 import { GoalList } from '../components/GoalList'
@@ -59,11 +59,7 @@ export function Settings() {
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
       <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Settings</h1>
 
-      {storageError && (
-        <p role="alert" className="rounded-[var(--radius-card)] border border-[var(--color-destructive)] bg-[color-mix(in_oklab,var(--color-destructive)_10%,var(--color-surface))] p-4 text-sm font-semibold">
-          {storageError}
-        </p>
-      )}
+      {storageError && <Alert>{storageError}</Alert>}
 
       <Card>
         <SectionTitle title="You" hint="Used only to greet you on the Today screen." />
@@ -74,7 +70,7 @@ export function Settings() {
               value={settings.name}
               onChange={(e) => setSettings({ name: e.target.value })}
               placeholder="Optional"
-              className="min-h-11 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+              className="min-h-11 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm font-semibold">
@@ -83,7 +79,7 @@ export function Settings() {
               value={settings.yearTheme}
               onChange={(e) => setSettings({ yearTheme: e.target.value })}
               placeholder="e.g. Finish what I start"
-              className="min-h-11 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+              className="min-h-11 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
             />
           </label>
         </div>
@@ -133,21 +129,21 @@ export function Settings() {
                 max={max}
                 value={settings[key]}
                 onChange={(e) => setSettings({ [key]: Number(e.target.value) })}
-                className="min-h-11 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
+                className="min-h-11 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm font-medium outline-none"
               />
             </label>
           ))}
         </div>
         <div className="mt-4 flex items-center gap-3">
           <span className="text-sm font-semibold">Appearance</span>
-          <div className="flex rounded-lg border p-0.5">
+          <div className="flex rounded-[var(--radius-control)] border p-0.5">
             {(['dark', 'light'] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setSettings({ theme: t })}
                 aria-pressed={settings.theme === t}
                 className={cx(
-                  'flex min-h-9 cursor-pointer items-center gap-1.5 rounded-md px-3 text-sm font-semibold capitalize transition-colors duration-150',
+                  'flex min-h-9 cursor-pointer items-center gap-1.5 rounded-[var(--radius-micro)] px-3 text-sm font-semibold capitalize transition-colors duration-150',
                   settings.theme === t
                     ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
                     : 'text-[var(--color-fg-muted)]',

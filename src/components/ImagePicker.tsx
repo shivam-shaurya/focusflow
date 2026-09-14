@@ -54,7 +54,7 @@ export function Cover({
 
       {resolved && (
         <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/cover:opacity-100">
-          <Button size="sm" className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur" onClick={() => setOpen(true)}>
+          <Button size="sm" className="!min-h-8 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur" onClick={() => setOpen(true)}>
             Change
           </Button>
           {/* With a bundled default behind it, clearing reverts to that rather
@@ -62,7 +62,7 @@ export function Cover({
           {!onDefault && (
             <Button
               size="sm"
-              className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur"
+              className="!min-h-8 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur"
               onClick={() => onChange('')}
               aria-label={defaultId ? `Reset ${label} to the default` : `Remove ${label}`}
               title={defaultId ? 'Reset to default' : 'Remove'}
@@ -108,7 +108,7 @@ function Picker({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 grid place-items-center bg-[var(--color-overlay)] p-4"
       role="dialog"
       aria-modal="true"
       aria-label={`Set ${label}`}
@@ -127,7 +127,7 @@ function Picker({
                 : 'Paste a direct image or GIF link, or upload a small file.'}
             </p>
           </div>
-          <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-lg p-1.5 hover:bg-[var(--color-surface-2)]">
+          <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-[var(--radius-control)] p-1.5 hover:bg-[var(--color-surface-2)]">
             <X size={16} />
           </button>
         </div>
@@ -148,7 +148,7 @@ function Picker({
                       aria-label={c.label}
                       aria-pressed={active}
                       className={cx(
-                        'relative block h-16 w-full cursor-pointer overflow-hidden rounded-lg border transition-colors duration-150',
+                        'relative block h-16 w-full cursor-pointer overflow-hidden rounded-[var(--radius-control)] border transition-colors duration-150',
                         active
                           ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]'
                           : 'hover:border-[var(--color-primary)]',
@@ -175,7 +175,7 @@ function Picker({
             onPick(url.trim())
           }}
         >
-          <span className="grid min-h-11 place-items-center rounded-lg border px-3 text-[var(--color-fg-muted)]">
+          <span className="grid min-h-11 place-items-center rounded-[var(--radius-control)] border px-3 text-[var(--color-fg-muted)]">
             <Link2 size={15} aria-hidden="true" />
           </span>
           <input
@@ -184,7 +184,7 @@ function Picker({
             onChange={(e) => { setUrl(e.target.value); setErr('') }}
             placeholder="https://media.giphy.com/…/giphy.gif"
             aria-label="Image or GIF URL"
-            className="min-h-11 min-w-0 flex-1 rounded-lg border bg-[var(--color-surface-2)] px-3 text-sm outline-none"
+            className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-control)] border bg-[var(--color-surface-2)] px-3 text-sm outline-none"
           />
           <Button type="submit" variant="primary">Use</Button>
         </form>
@@ -193,7 +193,7 @@ function Picker({
           <img
             src={url.trim()}
             alt=""
-            className="mt-3 h-32 w-full rounded-lg border object-cover"
+            className="mt-3 h-32 w-full rounded-[var(--radius-control)] border object-cover"
             onError={() => setErr('That link did not load as an image.')}
           />
         )}
