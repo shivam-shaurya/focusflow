@@ -6,7 +6,7 @@ import {
 } from '../lib/date'
 import { monthRows, rollup, weekRows, yearRows, type Bucketed } from '../lib/progress'
 import { BarChart, Heatmap, Stat, type Datum } from '../components/charts'
-import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
+import { Bar, Button, Card, PageHeader, SectionTitle, cx } from '../components/ui'
 import { Swipe, useArrowPaging } from '../components/Swipe'
 
 type Range = 'week' | 'month' | 'year'
@@ -97,17 +97,13 @@ export function Progress() {
     <Swipe
       onPrev={goBack}
       onNext={goForward}
-      className="mx-auto flex w-full max-w-6xl flex-col gap-6"
+      className="mx-auto flex w-full max-w-7xl flex-col gap-4"
     >
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
-            <TrendingUp size={14} aria-hidden="true" /> Progress
-          </p>
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+      <PageHeader
+        icon={TrendingUp}
+        eyebrow="Progress"
+        title={title}
+        actions={<>
           <div className="flex rounded-[var(--radius-control)] border p-0.5" role="tablist" aria-label="Time range">
             {RANGES.map((r) => (
               <button
@@ -132,8 +128,8 @@ export function Progress() {
           <Button size="sm" variant="ghost" disabled={offset >= 0} onClick={goForward} aria-label={`Next ${range}`}>
             <ChevronRight size={16} />
           </Button>
-        </div>
-      </header>
+        </>}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Check-ins" value={totals.done} sub={`${totals.planned} possible`} />
@@ -160,7 +156,7 @@ export function Progress() {
         <BarChart data={taskData} title={`Goals and tasks completed per ${range === 'year' ? 'month' : 'day'}`} />
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <SectionTitle title="Focus hours" hint="Time actually spent in timed blocks." />
           <BarChart data={focusData} unit="h" height={140} title="Focus hours" />

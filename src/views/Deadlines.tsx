@@ -9,7 +9,7 @@ import {
   PACE_LABEL, deadlineStats, fmtHours, strategy, type Granularity, type Pace,
 } from '../lib/deadlines'
 import { fmtLong, todayISO } from '../lib/date'
-import { Bar, Button, Card, Empty, SectionTitle, cx } from '../components/ui'
+import { Bar, Button, Card, Empty, SectionTitle, cx, Page, PageHeader } from '../components/ui'
 import { Countdown } from '../components/Countdown'
 import { celebrate } from '../lib/celebrate'
 
@@ -48,19 +48,13 @@ export function Deadlines() {
   )
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-      <header>
-        <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
-          <CalendarClock size={14} aria-hidden="true" /> Deadlines
-        </p>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-          What is actually due
-        </h1>
-        <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-          Give it the hours it needs and the date it is due. The pace is then arithmetic,
-          not a guess.
-        </p>
-      </header>
+    <Page width="reading">
+      <PageHeader
+        icon={CalendarClock}
+        eyebrow="Deadlines"
+        title="What is actually due"
+        hint="Give it the hours it needs and the date it is due. The pace is then arithmetic, not a guess."
+      />
 
       <NewDeadline />
 
@@ -88,7 +82,7 @@ export function Deadlines() {
           )}
         </div>
       )}
-    </div>
+    </Page>
   )
 }
 

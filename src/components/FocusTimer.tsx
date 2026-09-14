@@ -65,7 +65,7 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
   const open = state.tasks.filter((t) => !t.done)
 
   return (
-    <Card spotlight className={cx('flex h-full flex-col gap-4', compact && 'p-4')}>
+    <Card className={cx('flex h-full flex-col gap-4', compact && 'p-4')}>
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--color-fg-muted)]">
           {mode === 'focus' ? 'Focus block' : 'Break'}

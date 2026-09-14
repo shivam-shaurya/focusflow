@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { LucideIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import { spring } from '../../lib/motion'
 import { cx } from './cx'
@@ -42,7 +43,7 @@ export function Card({
   elevation = 'tile',
   tone = 'default',
   hover = false,
-  spotlight = false,
+  spotlight = true,
 }: {
   children: ReactNode
   className?: string
@@ -52,8 +53,10 @@ export function Card({
   /** Lift on pointer hover — only for tiles that are themselves interactive. */
   hover?: boolean
   /**
-   * Light the tile under the cursor. Unlike `hover` this is not a promise that
-   * the tile does something when clicked, so it is safe on reading surfaces.
+   * Light the tile under the cursor. On by default: it is not a promise that
+   * the tile does anything when clicked, so it is safe on every surface, and
+   * one hover language everywhere is most of what makes six screens read as
+   * one app. Costs nothing below 1024px, where it is not rendered at all.
    */
   spotlight?: boolean
 }) {
@@ -108,6 +111,67 @@ export function Card({
   )
 }
 
+/* ── Page shell ────────────────────────────────────────────────────────────── */
+
+/**
+ * The outer wrapper every view sits in.
+ *
+ * Before this existed, the six views used five different max-widths and two
+ * different gaps, so moving between them shifted the whole page under you.
+ * `wide` is for grid-heavy screens, `reading` for the ones that are mostly one
+ * column of text — a deliberate pair, rather than whatever each file grew.
+ */
+export function Page({
+  children, width = 'wide', className,
+}: {
+  children: ReactNode
+  width?: 'wide' | 'reading'
+  className?: string
+}) {
+  return (
+    <div
+      className={cx(
+        'mx-auto flex w-full flex-col gap-4',
+        width === 'wide' ? 'max-w-7xl' : 'max-w-4xl',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
+ * The standing head of a view: a coloured eyebrow with the view's own icon, the
+ * title, and whatever controls belong to the screen. Every page opened
+ * differently before — some with an eyebrow, some with a bare heading, one with
+ * a heading in a different size — which is most of what made the app feel like
+ * six apps.
+ */
+export function PageHeader({
+  icon: Icon, eyebrow, title, hint, actions,
+}: {
+  icon?: LucideIcon
+  eyebrow: string
+  title: ReactNode
+  hint?: string
+  actions?: ReactNode
+}) {
+  return (
+    <header className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+      <div className="min-w-0">
+        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[var(--color-primary)]">
+          {Icon && <Icon size={13} aria-hidden="true" />}
+          {eyebrow}
+        </p>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
+        {hint && <p className="mt-1 text-sm text-[var(--color-fg-muted)]">{hint}</p>}
+      </div>
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    </header>
+  )
+}
+
 export function SectionTitle({
   title, hint, action,
 }: { title: string; hint?: string; action?: ReactNode }) {
@@ -154,7 +218,9 @@ export function Button({
     'active:scale-[0.98] ' +
     'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
   const sizes = {
-    sm: 'min-h-9 px-3 text-xs',
+    // 36px is fine under a cursor and too small under a thumb, so the small
+    // size grows to the 44px touch minimum on coarse pointers only.
+    sm: 'min-h-9 px-3 text-xs pointer-coarse:min-h-11',
     md: 'min-h-11 px-4 text-sm',
   }
   const variants = {

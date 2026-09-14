@@ -53,8 +53,8 @@ export function Cover({
       )}
 
       {resolved && (
-        <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/cover:opacity-100">
-          <Button size="sm" className="!min-h-8 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur" onClick={() => setOpen(true)}>
+        <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/cover:opacity-100 pointer-coarse:opacity-100">
+          <Button size="sm" className="!min-h-8 pointer-coarse:!min-h-10 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur" onClick={() => setOpen(true)}>
             Change
           </Button>
           {/* With a bundled default behind it, clearing reverts to that rather
@@ -62,7 +62,7 @@ export function Cover({
           {!onDefault && (
             <Button
               size="sm"
-              className="!min-h-8 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur"
+              className="!min-h-8 pointer-coarse:!min-h-10 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur"
               onClick={() => onChange('')}
               aria-label={defaultId ? `Reset ${label} to the default` : `Remove ${label}`}
               title={defaultId ? 'Reset to default' : 'Remove'}

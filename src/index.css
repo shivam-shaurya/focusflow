@@ -233,6 +233,34 @@ h1, h2, h3 {
 }
 .ff-strike[data-done="true"] { background-size: 100% 1.5px; }
 
+/* ── Touch ──────────────────────────────────────────────────────────────────
+   Everything here keys off the *pointer*, not the viewport, so a tablet gets it
+   and a small desktop window does not. */
+@media (pointer: coarse) {
+  /* iOS Safari zooms the entire page in when a focused field is under 16px,
+     and then leaves it zoomed. Every input in this app was 14px, so adding a
+     task in the installed app meant a lurch and a pinch back out every time. */
+  input, select, textarea { font-size: 16px; }
+
+  /* No grey flash rectangle on tap — the app's own press states say more. */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /*
+   * One rule instead of chasing every hand-rolled control: anything built to
+   * the 36/40px desktop control height becomes a 44px touch target. Written as
+   * a utility override because the alternative is a `pointer-coarse:` class on
+   * every segmented control, tab, chip and date field in the app, which drifts
+   * the moment someone adds the next one.
+   */
+  .min-h-9, .min-h-10 { min-height: calc(var(--spacing) * 11); }
+
+  /* Long-pressing chrome in an installed app should not start selecting text. */
+  nav, header, kbd, [role="progressbar"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

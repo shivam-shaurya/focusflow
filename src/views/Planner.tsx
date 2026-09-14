@@ -45,7 +45,7 @@ export function Planner() {
     <Swipe
       onPrev={() => shift(-1)}
       onNext={() => shift(1)}
-      className="mx-auto flex w-full max-w-7xl flex-col gap-6"
+      className="mx-auto flex w-full max-w-7xl flex-col gap-4"
     >
       {/* Banner — the page's own cover, like a Notion header. */}
       <div className="overflow-hidden rounded-[var(--radius-card)] border shadow-[var(--shadow-tile)]">
@@ -74,7 +74,7 @@ export function Planner() {
                 value={state.settings.boardTitle}
                 onChange={(e) => setSettings({ boardTitle: e.target.value })}
                 aria-label="Board title"
-                className="w-full truncate rounded-[var(--radius-control)] bg-transparent text-2xl font-extrabold tracking-tight outline-none focus:bg-[var(--color-surface-2)] sm:text-3xl"
+                className="w-full truncate rounded-[var(--radius-control)] bg-transparent text-2xl font-extrabold tracking-tight outline-none focus:bg-[var(--color-surface-2)] sm:text-3xl pointer-coarse:min-h-11"
               />
               <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
                 <CalendarDays size={14} aria-hidden="true" />

@@ -142,7 +142,10 @@ export function CheckBox({
   size?: 'sm' | 'md'
 }) {
   const reduce = useReducedMotion()
-  const px = size === 'sm' ? 'size-5' : 'size-6'
+  // The checkbox is the single most-tapped control in the app, so on a touch
+  // device it gets both a larger box and — via the ::after overlay below — a
+  // hit area well past its own edges, without growing the row.
+  const px = size === 'sm' ? 'size-5 pointer-coarse:size-6' : 'size-6 pointer-coarse:size-7'
   return (
     <motion.button
       type="button"
@@ -154,8 +157,9 @@ export function CheckBox({
       transition={springPop}
       className={cx(
         px,
-        'grid shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2',
+        'relative grid shrink-0 cursor-pointer place-items-center rounded-[var(--radius-micro)] border-2',
         'transition-colors duration-150',
+        "pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5 pointer-coarse:after:content-['']",
         checked
           ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-[var(--color-on-primary)]'
           : 'border-[var(--color-fg-subtle)] hover:border-[var(--color-primary)]',

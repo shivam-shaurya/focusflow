@@ -113,6 +113,7 @@ function GoalRow({
         className={cx(
           'flex items-center gap-2.5 rounded-[var(--radius-control)] px-2 transition-colors duration-150 hover:bg-[var(--color-surface-2)]',
           compact ? 'py-1.5' : 'py-2',
+          'pointer-coarse:py-3',
         )}
       >
         {!compact && (
@@ -146,6 +147,10 @@ function GoalRow({
           className={cx(
             'min-w-0 flex-1 cursor-pointer truncate text-left text-sm font-medium',
             'transition-colors duration-200',
+            // Grows into the row's padding so the whole line is tappable, not
+            // just the 24px of text in the middle of it. The negative margin
+            // means the row's height does not change.
+            'pointer-coarse:-my-3 pointer-coarse:py-3',
             on && 'text-[var(--color-fg-muted)]',
           )}
         >

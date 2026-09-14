@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { useStore } from '../lib/store'
 import type { Block, BlockItem, BlockKind, BlockTone } from '../lib/types'
-import { Button, cx } from '../components/ui'
+import { Button, cx, Page, PageHeader } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 
 /** Tone tints borrow the Notion callout colours without the saturation. */
@@ -45,23 +45,18 @@ export function NewMe() {
   const purposeDone = purpose?.items.filter((i) => i.done).length ?? 0
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-accent)]">
-            <Flame size={14} aria-hidden="true" /> Read this every day
-          </p>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">NEW ME</h1>
-          {purpose && (
-            <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-              {purposeDone} of {purpose.items.length} purpose items done
-            </p>
-          )}
-        </div>
-        <Button size="sm" variant={editing ? 'primary' : 'outline'} onClick={() => setEditing((v) => !v)}>
-          {editing ? 'Done editing' : 'Edit page'}
-        </Button>
-      </header>
+    <Page width="reading">
+      <PageHeader
+        icon={Flame}
+        eyebrow="Read this every day"
+        title="NEW ME"
+        hint={purpose ? `${purposeDone} of ${purpose.items.length} purpose items done` : undefined}
+        actions={
+          <Button size="sm" variant={editing ? 'primary' : 'outline'} onClick={() => setEditing((v) => !v)}>
+            {editing ? 'Done editing' : 'Edit page'}
+          </Button>
+        }
+      />
 
       {blocks.map((b, i) => (
         <BlockCard key={b.id} block={b} index={i} count={blocks.length} editing={editing} />
@@ -77,7 +72,7 @@ export function NewMe() {
           ))}
         </div>
       )}
-    </div>
+    </Page>
   )
 }
 
@@ -337,7 +332,7 @@ function Item({
       <button
         onClick={onRemove}
         aria-label="Delete line"
-        className="mt-2 shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
+        className="mt-2 shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
       >
         <Trash2 size={14} />
       </button>

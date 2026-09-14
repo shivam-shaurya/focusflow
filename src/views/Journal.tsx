@@ -5,7 +5,7 @@ import { useStore } from '../lib/store'
 import { addDays, fmtLong, iso, parseISO, todayISO } from '../lib/date'
 import type { Mood } from '../lib/types'
 import { TEMPLATES, templateById } from '../lib/templates'
-import { Button, Card, Pill, SectionTitle, cx } from '../components/ui'
+import { Button, Card, PageHeader, Pill, SectionTitle, cx } from '../components/ui'
 import { Swipe, useArrowPaging } from '../components/Swipe'
 
 const MOODS: Array<{ v: Mood; label: string }> = [
@@ -79,15 +79,12 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
   useArrowPaging(goPrevDay, goNextDay)
 
   return (
-    <Swipe onPrev={goPrevDay} onNext={goNextDay} className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
-            <BookOpen size={14} aria-hidden="true" /> Introspection
-          </p>
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{fmtLong(date)}</h1>
-        </div>
-        <div className="flex items-center gap-2">
+    <Swipe onPrev={goPrevDay} onNext={goNextDay} className="flex flex-col gap-4">
+      <PageHeader
+        icon={BookOpen}
+        eyebrow="Introspection"
+        title={fmtLong(date)}
+        actions={<>
           <Button size="sm" variant="ghost" onClick={goPrevDay} aria-label="Previous day">
             <ChevronLeft size={16} />
           </Button>
@@ -108,11 +105,11 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
           >
             <ChevronRight size={16} />
           </Button>
-        </div>
-      </header>
+        </>}
+      />
 
-      <div className="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
-        <div className="flex flex-col gap-6">
+      <div className="grid gap-4 lg:grid-cols-[1.7fr_1fr]">
+        <div className="flex flex-col gap-4">
           <Card>
             <SectionTitle title="How did today land?" hint="Two scales. Ten seconds. Then you're allowed to stop." />
             <div className="grid gap-4 sm:grid-cols-2">
@@ -238,7 +235,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
 export function Journal() {
   const [date, setDate] = useState(todayISO())
   return (
-    <div className="mx-auto w-full max-w-5xl">
+    <div className="mx-auto w-full max-w-7xl">
       <Editor key={date} date={date} setDate={setDate} />
     </div>
   )

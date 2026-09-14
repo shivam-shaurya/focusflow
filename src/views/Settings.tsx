@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Download, Monitor, Moon, PartyPopper, Play, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
+import { Check, Download, Monitor, Moon, PartyPopper, Play, Settings as SettingsIcon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
-import { Alert, Button, Card, SectionTitle, cx } from '../components/ui'
+import { Alert, Button, Card, Page, PageHeader, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 import { WEEKDAY_IDS } from '../lib/covers'
 import { GoalList } from '../components/GoalList'
@@ -67,8 +67,13 @@ export function Settings() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-      <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Settings</h1>
+    <Page width="reading">
+      <PageHeader
+        icon={SettingsIcon}
+        eyebrow="Settings"
+        title="Rhythm and data"
+        hint="Everything here is stored on this device only."
+      />
 
       {storageError && <Alert>{storageError}</Alert>}
 
@@ -201,7 +206,7 @@ export function Settings() {
             type="checkbox"
             checked={settings.reduceMotion}
             onChange={(e) => setSettings({ reduceMotion: e.target.checked })}
-            className="size-4 cursor-pointer accent-[var(--color-primary)]"
+            className="size-4 cursor-pointer accent-[var(--color-primary)] pointer-coarse:size-5"
           />
           Reduce motion everywhere
           <span className="font-medium text-[var(--color-fg-muted)]">
@@ -385,6 +390,6 @@ export function Settings() {
           </div>
         )}
       </Card>
-    </div>
+    </Page>
   )
 }

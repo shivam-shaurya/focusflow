@@ -38,7 +38,7 @@ export function QuickAdd({ date, placeholder = 'Add a task…' }: { date?: strin
           onChange={(e) => setTitle(e.target.value)}
           placeholder={placeholder}
           aria-label="New task"
-          className="min-w-0 flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-[var(--color-fg-subtle)]"
+          className="min-w-0 flex-1 self-stretch bg-transparent text-sm font-medium outline-none placeholder:text-[var(--color-fg-subtle)]"
         />
         {/* The Enter hint only appears once pressing Enter would do something. */}
         <AnimatePresence initial={false}>

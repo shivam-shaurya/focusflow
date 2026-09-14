@@ -218,7 +218,7 @@ export function Today() {
         {/* ── Small stat tiles ── */}
         <Fold show={!focus} className="md:col-span-3 xl:col-span-2">
               <div className="grid h-full grid-cols-2 gap-4 xl:grid-cols-1">
-                <Card spotlight className="flex flex-col justify-center !p-4">
+                <Card className="flex flex-col justify-center !p-4">
                   <Eyebrow className="flex items-center gap-1.5">
                     <Flame size={12} aria-hidden="true" /> Streak
                   </Eyebrow>
@@ -232,7 +232,7 @@ export function Today() {
                     </span>
                   </p>
                 </Card>
-                <Card spotlight className="flex flex-col justify-center !p-4">
+                <Card className="flex flex-col justify-center !p-4">
                   <Eyebrow className="flex items-center gap-1.5">
                     <Target size={12} aria-hidden="true" /> Done today
                   </Eyebrow>
@@ -264,7 +264,7 @@ export function Today() {
 
         {/* ── Daily goals: the working surface, widest tile ── */}
         <StaggerItem className={cx('md:col-span-6', !focus && 'xl:col-span-4')}>
-          <Card spotlight className="h-full">
+          <Card className="h-full">
             <SectionTitle
               title="Daily goals"
               hint="Rename, reorder, or delete any of them. Click one to add detail."
@@ -301,7 +301,7 @@ export function Today() {
 
         {/* ── Tasks ── */}
         <StaggerItem className={cx('md:col-span-6', !focus && 'xl:col-span-3')}>
-          <Card spotlight className="h-full">
+          <Card className="h-full">
             <SectionTitle title="Today's tasks" hint="One-off things, on top of the daily goals." />
             <QuickAdd date={today} placeholder="What else needs to happen today?" />
             <ul className="mt-3 flex flex-col">
@@ -323,7 +323,7 @@ export function Today() {
 
         {/* ── Inbox ── */}
         <Fold show={!focus} className="md:col-span-6 xl:col-span-3">
-              <Card spotlight className="h-full">
+              <Card className="h-full">
                 <SectionTitle
                   title="Inbox"
                   hint="Dump it here now, decide later."

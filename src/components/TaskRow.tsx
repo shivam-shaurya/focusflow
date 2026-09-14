@@ -32,6 +32,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
       <div
         className={cx(
           'flex items-center gap-2.5 rounded-[var(--radius-control)] border border-transparent px-2 py-2',
+          'pointer-coarse:py-3',
           'transition-colors duration-150 hover:border-[var(--color-line)] hover:bg-[var(--color-surface-2)]',
         )}
       >
@@ -50,6 +51,10 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
           className={cx(
             'min-w-0 flex-1 cursor-pointer truncate text-left text-sm font-medium',
             'transition-colors duration-200',
+            // Grows into the row's padding so the whole line is tappable, not
+            // just the 24px of text in the middle of it. The negative margin
+            // means the row's height does not change.
+            'pointer-coarse:-my-3 pointer-coarse:py-3',
             task.done && 'text-[var(--color-fg-muted)]',
           )}
         >
@@ -70,7 +75,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
         <button
           onClick={() => removeTask(task.id)}
           aria-label={`Delete "${task.title}"`}
-          className="shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100"
+          className="shrink-0 cursor-pointer rounded-[var(--radius-micro)] p-1.5 text-[var(--color-fg-muted)] opacity-0 transition-opacity duration-150 hover:text-[var(--color-destructive)] focus-visible:opacity-100 group-hover:opacity-100 pointer-coarse:opacity-100 pointer-coarse:min-h-11 pointer-coarse:min-w-11"
         >
           <Trash2 size={14} />
         </button>
