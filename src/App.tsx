@@ -106,7 +106,6 @@ function Shell() {
         >
           <Search size={15} aria-hidden="true" />
           <span className="flex-1">Search or add…</span>
-          <span className="flex gap-0.5"><Kbd>⌘</Kbd><Kbd>K</Kbd></span>
         </button>
 
         <ul className="mt-4 flex flex-col gap-1">
