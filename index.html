@@ -14,10 +14,16 @@
     <meta name="theme-color" content="#f0fdfa" media="(prefers-color-scheme: light)" />
     <meta name="color-scheme" content="dark light" />
 
-    <!-- iOS home-screen behaviour: full-screen, dark status bar. -->
+    <!--
+      iOS home-screen behaviour. `black` keeps the web view BELOW the status bar;
+      `black-translucent` pushes content underneath it, which put the header and
+      the nav drawer under the clock and made them untappable in standalone mode.
+      viewport-fit=cover stays so the home indicator and landscape notch are still
+      reported through env(safe-area-inset-*), which the layout pads for.
+    -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="FocusFlow" />
 
     <!-- Plus Jakarta Sans is bundled via @fontsource-variable in src/index.css,

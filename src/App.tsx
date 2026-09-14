@@ -91,7 +91,7 @@ function Shell() {
       {/* Sidebar — desktop */}
       <nav
         aria-label="Main"
-        className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r bg-[var(--color-surface)] p-4 lg:flex"
+        className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r bg-[var(--color-surface)] p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))] lg:flex"
       >
         <Brand theme={state.settings.yearTheme} />
         <ul className="mt-6 flex flex-col gap-1">
@@ -121,7 +121,7 @@ function Shell() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-50 bg-black/50 lg:hidden"
             onClick={() => setNavOpen(false)}
           >
             <motion.nav
@@ -131,7 +131,7 @@ function Shell() {
               exit={{ x: -280 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               onClick={(e) => e.stopPropagation()}
-              className="flex h-full w-64 flex-col border-r bg-[var(--color-surface)] p-4"
+              className="flex h-dvh w-64 flex-col overflow-y-auto border-r bg-[var(--color-surface)] p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))]"
             >
               <div className="flex items-center justify-between">
                 <Brand theme={state.settings.yearTheme} />
@@ -154,21 +154,31 @@ function Shell() {
       </AnimatePresence>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex items-center gap-3 border-b bg-[var(--color-bg)]/90 px-4 py-3 backdrop-blur lg:hidden">
-          <button
-            onClick={() => setNavOpen(true)}
-            aria-label="Open menu"
-            className="cursor-pointer rounded-lg p-2 hover:bg-[var(--color-surface-2)]"
-          >
-            <Menu size={20} />
-          </button>
-          <span className="font-extrabold tracking-tight">FocusFlow</span>
-          <span className="ml-auto"><OfflineBadge online={online} /></span>
-        </header>
+        {/*
+          One sticky container so the bar and the banner stack instead of
+          overlapping. They were both `sticky top-0`, and the banner's higher
+          z-index put it straight over the menu button.
+        */}
+        <div className="sticky top-0 z-30 bg-[var(--color-bg)] pt-[env(safe-area-inset-top)]">
+          <header className="flex items-center gap-3 border-b bg-[var(--color-bg)]/90 px-4 py-3 backdrop-blur lg:hidden">
+            <button
+              onClick={() => setNavOpen(true)}
+              aria-label="Open menu"
+              className="cursor-pointer rounded-lg p-2 hover:bg-[var(--color-surface-2)]"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="font-extrabold tracking-tight">FocusFlow</span>
+            <span className="ml-auto"><OfflineBadge online={online} /></span>
+          </header>
 
-        <StorageBanner />
+          <StorageBanner />
+        </div>
 
-        <main id="main" className="flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+        <main
+          id="main"
+          className="flex-1 px-4 py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-10 lg:py-10"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={route}

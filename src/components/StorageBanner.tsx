@@ -38,7 +38,8 @@ export function StorageBanner() {
   return (
     <div
       role="alert"
-      className="sticky top-0 z-40 border-b border-[var(--color-destructive)] bg-[color-mix(in_oklab,var(--color-destructive)_14%,var(--color-surface))] px-4 py-3 sm:px-6 lg:px-10"
+      /* Stickiness lives on the wrapper in App.tsx so this never covers the bar. */
+      className="border-b border-[var(--color-destructive)] bg-[color-mix(in_oklab,var(--color-destructive)_14%,var(--color-surface))] px-4 py-3 sm:px-6 lg:px-10"
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2">
         <AlertTriangle size={18} className="shrink-0 text-[var(--color-destructive)]" aria-hidden="true" />

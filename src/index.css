@@ -60,6 +60,12 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   font-synthesis-weight: none;
+  /* Landscape notch: keep content clear of the sensor housing on both sides.
+     Zero everywhere else, so this costs nothing off iOS. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Stops the whole page rubber-banding under the installed app's chrome. */
+  overscroll-behavior-y: none;
 }
 
 :focus-visible {

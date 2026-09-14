@@ -42,7 +42,7 @@ export function PwaToasts() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="fixed bottom-4 right-4 z-50 flex max-w-[min(22rem,calc(100vw-2rem))] items-start gap-3 rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4 shadow-lg shadow-black/20"
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-50 flex max-w-[min(22rem,calc(100vw-2rem))] items-start gap-3 rounded-[var(--radius-card)] border bg-[var(--color-surface)] p-4 shadow-lg shadow-black/20"
         >
           <span className="mt-0.5 shrink-0 text-[var(--color-primary)]" aria-hidden="true">
             {needRefresh ? <RefreshCw size={18} /> : <Download size={18} />}
