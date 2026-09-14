@@ -6,7 +6,7 @@ import {
 import { useStore } from '../lib/store'
 import { useEditMode } from '../lib/edit'
 import type { Block, BlockItem, BlockKind, BlockTone } from '../lib/types'
-import { Button, cx, Page, PageHeader, EditToggle } from '../components/ui'
+import { Button, cx, Page, PageHeader } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 
 /** Tone tints borrow the Notion callout colours without the saturation. */
@@ -52,7 +52,6 @@ export function NewMe() {
         eyebrow="Read this every day"
         title="NEW ME"
         hint={purpose ? `${purposeDone} of ${purpose.items.length} purpose items done` : undefined}
-        actions={<EditToggle />}
       />
 
       {blocks.map((b, i) => (

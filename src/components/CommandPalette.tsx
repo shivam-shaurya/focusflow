@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import {
-  ArrowRight, Check, CornerDownLeft, Download, Moon, Plus, Search, Sun,
+  ArrowRight, Check, CornerDownLeft, Download, Moon, Pencil, Plus, Search, Sun,
 } from 'lucide-react'
 import { useStore } from '../lib/store'
-import { NAV, goTo } from '../lib/nav'
+import { NAV, goTo, routeFromHash } from '../lib/nav'
 import { todayISO } from '../lib/date'
 import { dialogVariants, scrimVariants } from '../lib/motion'
 import { cx } from './ui'
+import { useEditMode } from '../lib/edit'
 
 /**
  * Opens the palette from anywhere without threading state through the shell.
@@ -50,6 +51,7 @@ function matches(haystack: string, q: string): boolean {
  */
 export function CommandPalette() {
   const { addTask, setSettings, state, exportJSON } = useStore()
+  const { editing, setEditing } = useEditMode()
   const reduce = useReducedMotion()
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
@@ -82,6 +84,21 @@ export function CommandPalette() {
 
   // A fresh query every time it opens; reopening into a stale search is jarring.
   useEffect(() => { if (open) { setQ(''); setCursor(0) } }, [open])
+
+  /*
+   * The action list is memoised, so it cannot read the route through a bare
+   * function call — it would keep whichever route was current the first time it
+   * was built, and go on offering "Edit this page" on a page with nothing to
+   * edit. Tracked as state instead, and re-read on open in case the hash was
+   * changed without an event.
+   */
+  const [route, setRoute] = useState(routeFromHash)
+  useEffect(() => {
+    const sync = () => setRoute(routeFromHash())
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
+  }, [])
+  useEffect(() => { if (open) setRoute(routeFromHash()) }, [open])
 
   const nextTheme = state.settings.theme === 'dark' ? 'light' : 'dark'
 
@@ -121,6 +138,18 @@ export function CommandPalette() {
       })
     }
 
+    // Only where the current view has media or layout to change.
+    if (NAV.find((n) => n.id === route)?.editable) {
+      list.push({
+        id: 'edit',
+        label: editing ? 'Done editing this page' : 'Edit this page',
+        hint: editing ? 'Hide the controls again' : 'Change its images',
+        keywords: 'edit customise customize change image cover gif remove',
+        icon: Pencil,
+        run: () => setEditing(!editing),
+      })
+    }
+
     list.push({
       id: 'theme',
       label: `Switch to ${nextTheme} mode`,
@@ -148,7 +177,7 @@ export function CommandPalette() {
 
     const needle = trimmed.toLowerCase()
     return list.filter((a) => a.dynamic || matches(`${a.label} ${a.keywords}`, needle))
-  }, [q, addTask, setSettings, nextTheme, exportJSON])
+  }, [q, addTask, setSettings, nextTheme, exportJSON, editing, setEditing, route])
 
   // The cursor is an index, so it has to be pulled back in when the list shrinks.
   useEffect(() => {

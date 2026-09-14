@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from 'motion/react'
-import { Menu, Search, X } from 'lucide-react'
+import { Check, Menu, Pencil, Search, X } from 'lucide-react'
 import { StoreProvider, useStore } from './lib/store'
 import { Today } from './views/Today'
 import { Planner } from './views/Planner'
@@ -9,7 +9,7 @@ import { Deadlines } from './views/Deadlines'
 import { Progress } from './views/Progress'
 import { NewMe } from './views/NewMe'
 import { Settings } from './views/Settings'
-import { cx, ShimmerText } from './components/ui'
+import { Button, cx, ShimmerText } from './components/ui'
 import { OfflineBadge, PwaToasts } from './components/PwaToasts'
 import { StorageBanner } from './components/StorageBanner'
 import { CommandPalette, openPalette } from './components/CommandPalette'
@@ -102,6 +102,7 @@ function Shell() {
    * than nesting two horizontal drags and making both feel unreliable.
    */
   const paged = route === 'planner' || route === 'journal' || route === 'progress'
+  const canEdit = Boolean(NAV.find((n) => n.id === route)?.editable)
   const at = NAV.findIndex((n) => n.id === route)
   const goBy = (step: number) => {
     const next = NAV[at + step]
@@ -109,6 +110,7 @@ function Shell() {
   }
 
   return (
+    <EditModeProvider value={editing} onChange={setEditing}>
     <div className="flex min-h-full">
       <ReadingProgress />
 
@@ -150,6 +152,7 @@ function Shell() {
           ))}
         </ul>
         <div className="mt-auto flex flex-col gap-3">
+          {canEdit && <EditControl editing={editing} onToggle={setEditing} />}
           <OfflineBadge online={online} />
           <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
             <Kbd>1</Kbd>–<Kbd>7</Kbd> switch views. <Kbd>⌘</Kbd><Kbd>K</Kbd> opens the
@@ -198,6 +201,14 @@ function Shell() {
                   <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} scope="drawer" />
                 ))}
               </ul>
+              {canEdit && (
+                <div className="mt-4">
+                  <EditControl
+                    editing={editing}
+                    onToggle={(v) => { setEditing(v); setNavOpen(false) }}
+                  />
+                </div>
+              )}
             </motion.nav>
           </motion.div>
         )}
@@ -261,14 +272,37 @@ function Shell() {
                 onPrev={() => goBy(-1)}
                 onNext={() => goBy(1)}
               >
-                <EditModeProvider value={editing} onChange={setEditing}>
-                  <Current />
-                </EditModeProvider>
+                <Current />
               </Swipe>
             </motion.div>
           </AnimatePresence>
         </main>
       </div>
+
+      <AnimatePresence>
+        {editing && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={spring}
+            className={cx(
+              'fixed inset-x-0 z-40 flex justify-center lg:hidden',
+              // Clears the dock, which owns the bottom of the screen.
+              'bottom-[calc(5.25rem+env(safe-area-inset-bottom))]',
+            )}
+          >
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setEditing(false)}
+              className="!rounded-full shadow-[var(--shadow-overlay)]"
+            >
+              <Check size={14} /> Done editing
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <MobileDock
         route={route}
@@ -280,6 +314,7 @@ function Shell() {
       <Celebration />
       <PwaToasts />
     </div>
+    </EditModeProvider>
   )
 }
 
@@ -299,6 +334,32 @@ function ReadingProgress() {
       style={{ scaleX }}
       className="fixed inset-x-0 top-0 z-[55] h-0.5 origin-left bg-[var(--color-primary)]"
     />
+  )
+}
+
+/**
+ * Edit mode lives in the chrome rather than on the page.
+ *
+ * It used to be a button in each page's header, which put a permanent "Edit
+ * page" next to the content on every screen that had anything to customise —
+ * loud, for something used rarely. Here it is one quiet line in the nav, in the
+ * same place on the rail and in the drawer, and it only appears on the views
+ * that have something to edit.
+ */
+function EditControl({
+  editing, onToggle,
+}: { editing: boolean; onToggle: (v: boolean) => void }) {
+  return (
+    <Button
+      size="sm"
+      variant={editing ? 'primary' : 'ghost'}
+      onClick={() => onToggle(!editing)}
+      aria-pressed={editing}
+      className="w-full !justify-start"
+    >
+      {editing ? <Check size={14} /> : <Pencil size={14} />}
+      {editing ? 'Done editing' : 'Edit this page'}
+    </Button>
   )
 }
 

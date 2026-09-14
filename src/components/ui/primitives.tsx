@@ -1,7 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { Check, Pencil } from 'lucide-react'
-import { useEditMode } from '../../lib/edit'
 import { motion, useReducedMotion } from 'motion/react'
 import { spring } from '../../lib/motion'
 import { cx } from './cx'
@@ -171,27 +169,6 @@ export function PageHeader({
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </header>
-  )
-}
-
-/**
- * The one control that turns a page's customisation on and off. Shared so that
- * "edit this page" is the same word, the same placement and the same behaviour
- * on every screen that has anything to customise.
- */
-export function EditToggle({ className }: { className?: string }) {
-  const { editing, setEditing } = useEditMode()
-  return (
-    <Button
-      size="sm"
-      variant={editing ? 'primary' : 'outline'}
-      onClick={() => setEditing(!editing)}
-      aria-pressed={editing}
-      className={className}
-    >
-      {editing ? <Check size={14} /> : <Pencil size={14} />}
-      {editing ? 'Done' : 'Edit page'}
-    </Button>
   )
 }
 

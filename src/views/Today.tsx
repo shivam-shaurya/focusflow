@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight, Flame, Inbox, Maximize2, Minimize2, Sparkles, Star, Target } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { fmtLong, iso, streak, todayISO, weekDates } from '../lib/date'
-import { Bar, Button, Card, EditToggle, Empty, Eyebrow, SectionTitle, Spotlight, SpotlightArea, cx } from '../components/ui'
+import { Bar, Button, Card, Empty, Eyebrow, SectionTitle, Spotlight, SpotlightArea, cx } from '../components/ui'
 import { TaskRow } from '../components/TaskRow'
 import { QuickAdd } from '../components/QuickAdd'
 import { FocusTimer } from '../components/FocusTimer'
@@ -161,20 +161,15 @@ export function Today() {
                     'linear-gradient(to top, var(--color-surface) 2%, color-mix(in oklab, var(--color-surface) 55%, transparent) 40%, transparent 85%)',
                 }}
               />
-              <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
               <motion.button
                 onClick={() => setSettings({ todayFocus: !focus })}
                 whileTap={{ scale: 0.94 }}
                 aria-pressed={focus}
-                className="ff-glass flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-bold"
+                className="ff-glass absolute left-3 top-3 z-10 flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-bold"
               >
                 {focus ? <Maximize2 size={13} /> : <Minimize2 size={13} />}
                 {focus ? 'Show everything' : 'Focus'}
               </motion.button>
-              {/* The only way to reach the cover's own controls — they no
-                  longer sit on the image waiting to be pressed by accident. */}
-              <EditToggle className="ff-glass !rounded-full !border-[var(--color-line)] !bg-transparent backdrop-blur" />
-              </div>
               <div className="absolute bottom-0 left-0 right-0 p-5">
                 <Eyebrow>{fmtLong(today)}</Eyebrow>
                 <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">
