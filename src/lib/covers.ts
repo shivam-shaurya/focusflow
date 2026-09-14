@@ -25,6 +25,18 @@ const modules = import.meta.glob('../assets/covers/*.{png,jpg,jpeg,webp,gif,avif
 
 export const BUNDLED_PREFIX = 'bundled:'
 
+/**
+ * An explicit "no image here".
+ *
+ * An empty slot cannot mean this, because empty already means "show the art
+ * bundled for this slot" — which is what makes the defaults appear for people
+ * whose saved data predates them. Without a sentinel there is no way to say
+ * you want nothing at all, and every cover in the app would be permanent.
+ */
+export const NONE_REF = 'none:'
+
+export const isNone = (s?: string): boolean => s === NONE_REF
+
 export interface BundledCover {
   id: string
   /** Title-cased from the filename, for the picker. */
@@ -65,6 +77,7 @@ export const bundledRef = (id: string) => `${BUNDLED_PREFIX}${id}`
  */
 export function resolveCover(src?: string, fallbackId?: string): string {
   const fallback = fallbackId ? COVERS[fallbackId]?.url ?? '' : ''
+  if (isNone(src)) return ''
   if (!src) return fallback
   if (!isBundledRef(src)) return src
   return COVERS[src.slice(BUNDLED_PREFIX.length)]?.url ?? fallback

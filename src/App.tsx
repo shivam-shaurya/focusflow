@@ -15,6 +15,7 @@ import { StorageBanner } from './components/StorageBanner'
 import { CommandPalette, openPalette } from './components/CommandPalette'
 import { MobileDock } from './components/MobileDock'
 import { Celebration } from './components/Celebration'
+import { EditModeProvider } from './lib/edit'
 import { Swipe } from './components/Swipe'
 import { requestPersistence, useOnline } from './lib/pwa'
 import { indicator, spring, viewVariants } from './lib/motion'
@@ -41,9 +42,11 @@ function Shell() {
   }, [])
   const [route, setRoute] = useState<Route>(routeFromHash)
   const [navOpen, setNavOpen] = useState(false)
+  // Edit mode belongs to the page you are on, so leaving the page leaves it.
+  const [editing, setEditing] = useState(false)
 
   useEffect(() => {
-    const onHash = () => setRoute(routeFromHash())
+    const onHash = () => { setRoute(routeFromHash()); setEditing(false) }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
@@ -52,6 +55,7 @@ function Shell() {
     window.location.hash = `#/${r}`
     setRoute(r)
     setNavOpen(false)
+    setEditing(false)
   }
 
   // Number keys jump between views — fewer clicks between thought and screen.
@@ -257,7 +261,9 @@ function Shell() {
                 onPrev={() => goBy(-1)}
                 onNext={() => goBy(1)}
               >
-                <Current />
+                <EditModeProvider value={editing} onChange={setEditing}>
+                  <Current />
+                </EditModeProvider>
               </Swipe>
             </motion.div>
           </AnimatePresence>

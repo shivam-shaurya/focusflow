@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Check, Download, Monitor, Moon, PartyPopper, Play, Settings as SettingsIcon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
+import { AlwaysEditing } from '../lib/edit'
 import { Alert, Button, Card, Page, PageHeader, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 import { WEEKDAY_IDS } from '../lib/covers'
@@ -67,6 +68,7 @@ export function Settings() {
   }
 
   return (
+    <AlwaysEditing>
     <Page width="reading">
       <PageHeader
         icon={SettingsIcon}
@@ -391,5 +393,6 @@ export function Settings() {
         )}
       </Card>
     </Page>
+    </AlwaysEditing>
   )
 }

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { addDays, fmtDay, isToday, startOfWeek, weekDates, weekNumber } from '../lib/date'
-import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
+import { Bar, Button, Card, SectionTitle, cx, EditToggle } from '../components/ui'
 import { Swipe, useArrowPaging } from '../components/Swipe'
 import { TaskRow } from '../components/TaskRow'
 import { GoalList } from '../components/GoalList'
@@ -82,7 +82,8 @@ export function Planner() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <EditToggle />
             <Button size="sm" variant="ghost" onClick={() => shift(-1)} aria-label="Previous week">
               <ChevronLeft size={16} />
             </Button>

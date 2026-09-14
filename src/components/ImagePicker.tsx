@@ -1,7 +1,13 @@
 import { useRef, useState } from 'react'
 import { Check, ImagePlus, Link2, RotateCcw, Trash2, Upload, X } from 'lucide-react'
-import { bundledRef, galleryCovers, isShowingDefault, resolveCover } from '../lib/covers'
+import { NONE_REF, bundledRef, galleryCovers, isShowingDefault, resolveCover } from '../lib/covers'
+import { useEditMode } from '../lib/edit'
 import { Button, cx } from './ui'
+
+/** The shared look for a control sitting on top of an image. */
+const OVERLAY_BTN =
+  '!min-h-8 pointer-coarse:!min-h-10 border-transparent bg-[var(--color-overlay)] ' +
+  '!px-2 text-[var(--color-on-overlay)] backdrop-blur'
 
 /** Uploads are inlined as data URLs into localStorage, so keep them small. */
 const MAX_UPLOAD = 1_200_000
@@ -9,6 +15,10 @@ const MAX_UPLOAD = 1_200_000
 /**
  * Cover image or GIF for a card. Links are preferred (Giphy/Tenor direct .gif
  * URLs work); uploads are supported but count against browser storage.
+ *
+ * The controls live behind the page's edit mode. They used to appear on hover,
+ * which on a phone — where nothing hovers — meant a "Change" button sitting
+ * permanently on top of every image in the app.
  */
 export function Cover({
   src, onChange, height = 120, label, rounded = 'rounded-t-[var(--radius-card)]',
@@ -23,10 +33,22 @@ export function Cover({
   defaultId?: string
 }) {
   const [open, setOpen] = useState(false)
+  const { editing } = useEditMode()
   // State holds an opaque ref (`bundled:…`) or a plain URL; only the <img> needs
   // the resolved form, so a saved cover survives a change of base path.
   const resolved = resolveCover(src, defaultId)
   const onDefault = isShowingDefault(src, defaultId)
+  /*
+   * A slot this small (the board icon is 56px) cannot hold a row of labelled
+   * buttons — they spilled off its left edge and over the title beside it. Below
+   * this height the controls become two icons, centred on the image.
+   */
+  const tiny = height <= 100
+
+  // Removed, and nobody is editing: the slot takes up no room at all. This is
+  // what makes "delete the image" mean something on a page that has default art
+  // waiting behind every slot.
+  if (!resolved && !editing) return null
 
   return (
     <div className="group/cover relative" style={{ height: resolved ? height : undefined }}>
@@ -41,35 +63,60 @@ export function Cover({
       ) : (
         <button
           onClick={() => setOpen(true)}
+          aria-label={`Add an image or GIF for ${label}`}
           className={cx(
             'flex w-full cursor-pointer items-center justify-center gap-2 border border-dashed',
-            'py-3 text-xs font-semibold text-[var(--color-fg-muted)]',
+            'text-xs font-semibold text-[var(--color-fg-muted)]',
             'transition-colors duration-150 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]',
+            // The label does not fit a 56px slot, so there it is the icon alone.
+            tiny ? 'aspect-square' : 'py-3',
             rounded,
           )}
         >
-          <ImagePlus size={14} aria-hidden="true" /> Add image or GIF
+          <ImagePlus size={14} aria-hidden="true" />
+          {!tiny && 'Add image or GIF'}
         </button>
       )}
 
-      {resolved && (
-        <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/cover:opacity-100 pointer-coarse:opacity-100">
-          <Button size="sm" className="!min-h-8 pointer-coarse:!min-h-10 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur" onClick={() => setOpen(true)}>
-            Change
+      {resolved && editing && (
+        <div
+          className={cx(
+            'absolute flex gap-1',
+            tiny ? 'inset-0 items-center justify-center' : 'right-2 top-2',
+          )}
+        >
+          <Button
+            size="sm"
+            className={cx(OVERLAY_BTN, tiny && '!px-1.5')}
+            onClick={() => setOpen(true)}
+            aria-label={`Change ${label}`}
+            title="Change image"
+          >
+            {tiny ? <ImagePlus size={13} /> : 'Change'}
           </Button>
-          {/* With a bundled default behind it, clearing reverts to that rather
-              than emptying the slot — so the control says so. */}
-          {!onDefault && (
+          {/* Reset only exists where there is bundled art to go back to, and it
+              is a different act from removing the image, so it is a different
+              button rather than one that changes meaning. */}
+          {!onDefault && defaultId && !tiny && (
             <Button
               size="sm"
-              className="!min-h-8 pointer-coarse:!min-h-10 border-transparent bg-[var(--color-overlay)] !px-2 text-[var(--color-on-overlay)] backdrop-blur"
+              className={OVERLAY_BTN}
               onClick={() => onChange('')}
-              aria-label={defaultId ? `Reset ${label} to the default` : `Remove ${label}`}
-              title={defaultId ? 'Reset to default' : 'Remove'}
+              aria-label={`Reset ${label} to the default`}
+              title="Reset to default"
             >
-              {defaultId ? <RotateCcw size={13} /> : <Trash2 size={13} />}
+              <RotateCcw size={13} />
             </Button>
           )}
+          <Button
+            size="sm"
+            className={cx(OVERLAY_BTN, tiny && '!px-1.5')}
+            onClick={() => onChange(NONE_REF)}
+            aria-label={`Remove ${label}`}
+            title="Remove image"
+          >
+            <Trash2 size={13} />
+          </Button>
         </div>
       )}
 

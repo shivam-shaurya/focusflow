@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   Check, ChevronDown, ChevronUp, ExternalLink, Flame, GripVertical, Plus, Trash2,
 } from 'lucide-react'
 import { useStore } from '../lib/store'
+import { useEditMode } from '../lib/edit'
 import type { Block, BlockItem, BlockKind, BlockTone } from '../lib/types'
-import { Button, cx, Page, PageHeader } from '../components/ui'
+import { Button, cx, Page, PageHeader, EditToggle } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
 
 /** Tone tints borrow the Notion callout colours without the saturation. */
@@ -34,7 +35,7 @@ const KINDS: Array<[BlockKind, string]> = [
 
 export function NewMe() {
   const { state, addBlock } = useStore()
-  const [editing, setEditing] = useState(false)
+  const { editing } = useEditMode()
 
   const blocks = useMemo(
     () => [...state.blocks].sort((a, b) => a.order - b.order),
@@ -51,15 +52,11 @@ export function NewMe() {
         eyebrow="Read this every day"
         title="NEW ME"
         hint={purpose ? `${purposeDone} of ${purpose.items.length} purpose items done` : undefined}
-        actions={
-          <Button size="sm" variant={editing ? 'primary' : 'outline'} onClick={() => setEditing((v) => !v)}>
-            {editing ? 'Done editing' : 'Edit page'}
-          </Button>
-        }
+        actions={<EditToggle />}
       />
 
       {blocks.map((b, i) => (
-        <BlockCard key={b.id} block={b} index={i} count={blocks.length} editing={editing} />
+        <BlockCard key={b.id} block={b} index={i} count={blocks.length} />
       ))}
 
       {editing && (
@@ -77,8 +74,9 @@ export function NewMe() {
 }
 
 function BlockCard({
-  block, index, count, editing,
-}: { block: Block; index: number; count: number; editing: boolean }) {
+  block, index, count,
+}: { block: Block; index: number; count: number }) {
+  const { editing } = useEditMode()
   const { updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem } = useStore()
 
   return (
