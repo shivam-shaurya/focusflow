@@ -52,31 +52,30 @@ export const isBundledRef = (s?: string): boolean => !!s?.startsWith(BUNDLED_PRE
 export const bundledRef = (id: string) => `${BUNDLED_PREFIX}${id}`
 
 /**
- * Turn whatever is in state into something an <img> can use. Http(s) URLs, data
- * URLs and '' pass through untouched; a `bundled:` ref for a file that is no
- * longer present resolves to '' so the slot shows its empty state rather than a
- * broken image.
+ * Turn whatever is in state into something an <img> can use.
+ *
+ * `fallbackId` is the bundled art designed for this particular slot (the
+ * weekday, the banner, the board icon). An empty slot falls back to it, so the
+ * defaults show for everyone — including people whose saved data predates the
+ * art being added — without rewriting anything on disk. Anything the user has
+ * actually chosen wins.
+ *
+ * Http(s) and data URLs pass through untouched. A `bundled:` ref whose file is
+ * gone falls back too, so a deleted image never leaves a broken <img>.
  */
-export function resolveCover(src?: string): string {
-  if (!src) return ''
+export function resolveCover(src?: string, fallbackId?: string): string {
+  const fallback = fallbackId ? COVERS[fallbackId]?.url ?? '' : ''
+  if (!src) return fallback
   if (!isBundledRef(src)) return src
-  return COVERS[src.slice(BUNDLED_PREFIX.length)]?.url ?? ''
+  return COVERS[src.slice(BUNDLED_PREFIX.length)]?.url ?? fallback
 }
+
+/** Whether a slot is showing bundled art rather than something the user picked. */
+export const isShowingDefault = (src: string | undefined, fallbackId?: string): boolean =>
+  !src && !!fallbackId && !!COVERS[fallbackId]
 
 /** Everything not claimed by a weekday or the banner, for the picker gallery. */
 export function galleryCovers(): BundledCover[] {
   return Object.values(COVERS).sort((a, b) => a.label.localeCompare(b.label))
 }
 
-/** Seeds `settings.dayCovers`, skipping weekdays with no bundled file. */
-export function defaultDayCovers(): Record<string, string> {
-  const out: Record<string, string> = {}
-  WEEKDAY_IDS.forEach((day, i) => {
-    if (COVERS[day]) out[String(i)] = bundledRef(day)
-  })
-  return out
-}
-
-export const defaultBanner = (): string => (COVERS.banner ? bundledRef('banner') : '')
-
-export const defaultAvatar = (): string => (COVERS.icon ? bundledRef('icon') : '')

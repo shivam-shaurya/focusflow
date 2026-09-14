@@ -7,6 +7,7 @@ import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
 import { TaskRow } from '../components/TaskRow'
 import { GoalList } from '../components/GoalList'
 import { Cover } from '../components/ImagePicker'
+import { WEEKDAY_IDS } from '../lib/covers'
 
 const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -44,6 +45,7 @@ export function Planner() {
           height={180}
           label="Board banner"
           rounded=""
+          defaultId="banner"
           onChange={(url) => setSettings({ banner: url })}
         />
         <div className="flex flex-wrap items-end justify-between gap-3 bg-[var(--color-surface)] p-5">
@@ -54,6 +56,7 @@ export function Planner() {
                 height={56}
                 label="Board icon"
                 rounded="rounded-xl"
+                defaultId="icon"
                 onChange={(url) => setSettings({ avatar: url })}
               />
             </div>
@@ -114,6 +117,7 @@ export function Planner() {
                 src={state.settings.dayCovers[String(i)]}
                 height={120}
                 label={`${DAY_FULL[i]} cover`}
+                defaultId={WEEKDAY_IDS[i]}
                 onChange={(url) => setDayCover(i, url)}
               />
 

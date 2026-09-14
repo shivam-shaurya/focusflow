@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import { Check, ImagePlus, Link2, Trash2, Upload, X } from 'lucide-react'
-import { bundledRef, galleryCovers, resolveCover } from '../lib/covers'
+import { Check, ImagePlus, Link2, RotateCcw, Trash2, Upload, X } from 'lucide-react'
+import { bundledRef, galleryCovers, isShowingDefault, resolveCover } from '../lib/covers'
 import { Button, cx } from './ui'
 
 /** Uploads are inlined as data URLs into localStorage, so keep them small. */
@@ -12,17 +12,21 @@ const MAX_UPLOAD = 1_200_000
  */
 export function Cover({
   src, onChange, height = 120, label, rounded = 'rounded-t-[var(--radius-card)]',
+  defaultId,
 }: {
   src?: string
   onChange: (url: string) => void
   height?: number
   label: string
   rounded?: string
+  /** Bundled cover designed for this slot, shown whenever nothing is chosen. */
+  defaultId?: string
 }) {
   const [open, setOpen] = useState(false)
   // State holds an opaque ref (`bundled:…`) or a plain URL; only the <img> needs
   // the resolved form, so a saved cover survives a change of base path.
-  const resolved = resolveCover(src)
+  const resolved = resolveCover(src, defaultId)
+  const onDefault = isShowingDefault(src, defaultId)
 
   return (
     <div className="group/cover relative" style={{ height: resolved ? height : undefined }}>
@@ -53,14 +57,19 @@ export function Cover({
           <Button size="sm" className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur" onClick={() => setOpen(true)}>
             Change
           </Button>
-          <Button
-            size="sm"
-            className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur"
-            onClick={() => onChange('')}
-            aria-label={`Remove ${label}`}
-          >
-            <Trash2 size={13} />
-          </Button>
+          {/* With a bundled default behind it, clearing reverts to that rather
+              than emptying the slot — so the control says so. */}
+          {!onDefault && (
+            <Button
+              size="sm"
+              className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur"
+              onClick={() => onChange('')}
+              aria-label={defaultId ? `Reset ${label} to the default` : `Remove ${label}`}
+              title={defaultId ? 'Reset to default' : 'Remove'}
+            >
+              {defaultId ? <RotateCcw size={13} /> : <Trash2 size={13} />}
+            </Button>
+          )}
         </div>
       )}
 

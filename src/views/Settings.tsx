@@ -3,6 +3,7 @@ import { Check, Download, Monitor, Moon, Share, ShieldCheck, Sun, Trash2, Undo2,
 import { useStore } from '../lib/store'
 import { Button, Card, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
+import { WEEKDAY_IDS } from '../lib/covers'
 import { GoalList } from '../components/GoalList'
 import { todayISO } from '../lib/date'
 import {
@@ -100,6 +101,7 @@ export function Settings() {
                 src={settings.dayCovers[String(i)]}
                 height={90}
                 label={`${name} cover`}
+                defaultId={WEEKDAY_IDS[i]}
                 onChange={(url) => setDayCover(i, url)}
               />
               <p className="px-3 py-2 text-xs font-bold">{name}</p>

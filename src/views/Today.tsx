@@ -9,6 +9,7 @@ import { QuickAdd } from '../components/QuickAdd'
 import { FocusTimer } from '../components/FocusTimer'
 import { GoalList } from '../components/GoalList'
 import { Cover } from '../components/ImagePicker'
+import { WEEKDAY_IDS } from '../lib/covers'
 
 export function Today() {
   const { state, updateTask, setDayCover } = useStore()
@@ -79,6 +80,7 @@ export function Today() {
               src={cover}
               height={140}
               label="Cover for today"
+              defaultId={WEEKDAY_IDS[weekday]}
               onChange={(url) => setDayCover(weekday, url)}
             />
             <div className="p-5">
