@@ -35,9 +35,6 @@ export const stagger = (delayChildren = 0.04, staggerChildren = 0.045): Variants
 export const riseItem: Variants = {
   hidden: { opacity: 0, y: 14, scale: 0.985 },
   show: { opacity: 1, y: 0, scale: 1, transition: springSoft },
-  // Leaving is quicker and shorter than arriving: a tile being put away should
-  // not hold the layout while the rest of the grid waits to close the gap.
-  exit: { opacity: 0, y: -8, scale: 0.98, transition: easeFast },
 }
 
 export const fadeItem: Variants = {

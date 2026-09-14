@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowRight, Flame, Inbox, Maximize2, Minimize2, Sparkles, Star, Target } from 'lucide-react'
 import { useStore } from '../lib/store'
@@ -13,7 +13,40 @@ import { WEEKDAY_IDS } from '../lib/covers'
 import { quoteOfTheDay } from '../lib/quotes'
 import { DeadlineNudge } from '../components/DeadlineNudge'
 import { celebrate, isStreakMark } from '../lib/celebrate'
+import { useCalm } from '../lib/prefs'
+import { springSoft } from '../lib/motion'
 import { AnimatedNumber, Aurora, ProgressRing, Stagger, StaggerItem } from '../components/motion'
+
+/**
+ * A tile Focus mode can put away.
+ *
+ * It deliberately does NOT use StaggerItem. A variant-driven child inside an
+ * AnimatePresence stops taking part in the parent's stagger orchestration
+ * correctly — the tiles either side of one were left frozen at opacity 0, half
+ * way through an entrance that never finished. Explicit initial/animate/exit
+ * props opt this tile out of variant inheritance entirely, so it animates on
+ * its own terms and the tiles around it keep cascading as before.
+ */
+function Fold({
+  show, className, children,
+}: { show: boolean; className: string; children: ReactNode }) {
+  const calm = useCalm()
+  return (
+    <AnimatePresence initial={false}>
+      {show && (
+        <motion.div
+          className={className}
+          initial={calm ? false : { opacity: 0, y: 12, scale: 0.985 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+          transition={calm ? { duration: 0 } : springSoft}
+        >
+          {children}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
 
 /**
  * Bento layout: a 6-column grid where tiles claim different spans, so the eye
@@ -183,9 +216,7 @@ export function Today() {
         </StaggerItem>
 
         {/* ── Small stat tiles ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="stats" className="md:col-span-3 xl:col-span-2">
+        <Fold show={!focus} className="md:col-span-3 xl:col-span-2">
               <div className="grid h-full grid-cols-2 gap-4 xl:grid-cols-1">
                 <Card spotlight className="flex flex-col justify-center !p-4">
                   <Eyebrow className="flex items-center gap-1.5">
@@ -213,27 +244,23 @@ export function Today() {
                   </p>
                 </Card>
               </div>
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
 
         {/* ── Focus timer gets its own tile ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="timer" className="md:col-span-3 xl:col-span-2">
+        <Fold show={!focus} className="md:col-span-3 xl:col-span-2">
               <FocusTimer />
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
 
         {/* ── Deadlines nudge spans full width when it has something to say ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="nudge" className="md:col-span-6">
+        <Fold
+          show={!focus}
+          // The nudge renders nothing when nothing is due, and an empty grid
+          // item still claims a row and a gap. `empty:hidden` drops the
+          // wrapper on exactly the days it has nothing to say.
+          className="empty:hidden md:col-span-6"
+        >
               <DeadlineNudge onOpen={() => { window.location.hash = '#/deadlines' }} />
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
 
         {/* ── Daily goals: the working surface, widest tile ── */}
         <StaggerItem className={cx('md:col-span-6', !focus && 'xl:col-span-4')}>
@@ -257,9 +284,7 @@ export function Today() {
         </StaggerItem>
 
         {/* ── Quote tile, with the aurora wash ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="quote" className="md:col-span-6 xl:col-span-2">
+        <Fold show={!focus} className="md:col-span-6 xl:col-span-2">
               <div className="relative h-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-surface)] p-5 shadow-[var(--shadow-tile)]">
                 <Aurora />
                 <div className="relative flex h-full flex-col justify-center">
@@ -272,9 +297,7 @@ export function Today() {
                   )}
                 </div>
               </div>
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
 
         {/* ── Tasks ── */}
         <StaggerItem className={cx('md:col-span-6', !focus && 'xl:col-span-3')}>
@@ -299,9 +322,7 @@ export function Today() {
         </StaggerItem>
 
         {/* ── Inbox ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="inbox" className="md:col-span-6 xl:col-span-3">
+        <Fold show={!focus} className="md:col-span-6 xl:col-span-3">
               <Card spotlight className="h-full">
                 <SectionTitle
                   title="Inbox"
@@ -338,14 +359,10 @@ export function Today() {
                   </p>
                 )}
               </Card>
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
 
         {/* ── Week strip: wide and short, closes the page ── */}
-        <AnimatePresence initial={false}>
-          {!focus && (
-            <StaggerItem key="week" className="md:col-span-6">
+        <Fold show={!focus} className="md:col-span-6">
               <Card>
                 <SectionTitle title="This week" hint="Goal check-ins, Monday to Sunday." />
                 <div className="grid gap-x-6 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -380,9 +397,7 @@ export function Today() {
                   })}
                 </div>
               </Card>
-            </StaggerItem>
-          )}
-        </AnimatePresence>
+        </Fold>
       </Stagger>
     </div>
   )
