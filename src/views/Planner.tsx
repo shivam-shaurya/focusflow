@@ -4,6 +4,7 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { addDays, fmtDay, isToday, startOfWeek, weekDates, weekNumber } from '../lib/date'
 import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
+import { Swipe, useArrowPaging } from '../components/Swipe'
 import { TaskRow } from '../components/TaskRow'
 import { GoalList } from '../components/GoalList'
 import { Cover } from '../components/ImagePicker'
@@ -35,10 +36,17 @@ export function Planner() {
   const pct = weekTotal === 0 ? 0 : (weekDone / weekTotal) * 100
 
   const shift = (n: number) => setAnchor((a) => startOfWeek(addDays(a, n * 7)))
+  // The week is what this view is about, so the swipe and the arrow keys spend
+  // themselves on it rather than on switching views.
+  useArrowPaging(() => shift(-1), () => shift(1))
   const unscheduled = state.tasks.filter((t) => !t.date && !t.done)
 
   return (
-    <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+    <Swipe
+      onPrev={() => shift(-1)}
+      onNext={() => shift(1)}
+      className="mx-auto flex w-full max-w-7xl flex-col gap-6"
+    >
       {/* Banner — the page's own cover, like a Notion header. */}
       <div className="overflow-hidden rounded-[var(--radius-card)] border shadow-[var(--shadow-tile)]">
         <Cover
@@ -202,6 +210,6 @@ export function Planner() {
           </ul>
         </Card>
       </div>
-    </div>
+    </Swipe>
   )
 }

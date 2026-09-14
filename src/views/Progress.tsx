@@ -7,6 +7,7 @@ import {
 import { monthRows, rollup, weekRows, yearRows, type Bucketed } from '../lib/progress'
 import { BarChart, Heatmap, Stat, type Datum } from '../components/charts'
 import { Bar, Button, Card, SectionTitle, cx } from '../components/ui'
+import { Swipe, useArrowPaging } from '../components/Swipe'
 
 type Range = 'week' | 'month' | 'year'
 
@@ -87,8 +88,17 @@ export function Progress() {
     return Math.round((relevant.reduce((a, j) => a + j.mood, 0) / relevant.length) * 10) / 10
   }, [rows, state.journal, range, anchor])
 
+  const goBack = () => setOffset((o) => o - 1)
+  // Forward stops at the present: there is nothing recorded after today.
+  const goForward = () => setOffset((o) => Math.min(0, o + 1))
+  useArrowPaging(goBack, goForward)
+
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+    <Swipe
+      onPrev={goBack}
+      onNext={goForward}
+      className="mx-auto flex w-full max-w-6xl flex-col gap-6"
+    >
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
@@ -116,10 +126,10 @@ export function Progress() {
               </button>
             ))}
           </div>
-          <Button size="sm" variant="ghost" onClick={() => setOffset((o) => o - 1)} aria-label={`Previous ${range}`}>
+          <Button size="sm" variant="ghost" onClick={goBack} aria-label={`Previous ${range}`}>
             <ChevronLeft size={16} />
           </Button>
-          <Button size="sm" variant="ghost" disabled={offset >= 0} onClick={() => setOffset((o) => o + 1)} aria-label={`Next ${range}`}>
+          <Button size="sm" variant="ghost" disabled={offset >= 0} onClick={goForward} aria-label={`Next ${range}`}>
             <ChevronRight size={16} />
           </Button>
         </div>
@@ -226,6 +236,6 @@ export function Progress() {
           </table>
         </div>
       </details>
-    </div>
+    </Swipe>
   )
 }

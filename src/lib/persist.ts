@@ -29,6 +29,9 @@ export const defaultSettings: Settings = {
   banner: '',
   avatar: '',
   boardTitle: 'Become powerful',
+  celebration: 'full',
+  celebrationMedia: {},
+  todayFocus: false,
 }
 
 export const seed = (): AppState => ({
@@ -71,7 +74,12 @@ function normalizeV1(p: Partial<AppState>): AppState {
     journal: (p.journal ?? []).map((j) => ({ ...j, template: j.template ?? 'daily' })),
     sessions: p.sessions ?? [],
     blocks: p.blocks ?? seedBlocks(),
-    settings: { ...defaultSettings, ...p.settings, dayCovers: { ...p.settings?.dayCovers } },
+    settings: {
+      ...defaultSettings,
+      ...p.settings,
+      dayCovers: { ...p.settings?.dayCovers },
+      celebrationMedia: { ...p.settings?.celebrationMedia },
+    },
   }
 }
 

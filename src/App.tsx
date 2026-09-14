@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'motion/react'
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from 'motion/react'
 import { Menu, Search, X } from 'lucide-react'
 import { StoreProvider, useStore } from './lib/store'
 import { Today } from './views/Today'
@@ -14,6 +14,8 @@ import { OfflineBadge, PwaToasts } from './components/PwaToasts'
 import { StorageBanner } from './components/StorageBanner'
 import { CommandPalette, openPalette } from './components/CommandPalette'
 import { MobileDock } from './components/MobileDock'
+import { Celebration } from './components/Celebration'
+import { Swipe } from './components/Swipe'
 import { requestPersistence, useOnline } from './lib/pwa'
 import { indicator, spring, viewVariants } from './lib/motion'
 import { NAV, routeFromHash, type NavEntry, type Route } from './lib/nav'
@@ -65,12 +67,42 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  /*
+   * Chrome that gets out of the way. Scrolling down is a statement that you are
+   * reading, not navigating — so the header and the dock leave, and come back
+   * the moment you scroll up or reach the top. The 6px threshold keeps a shaky
+   * thumb from flickering them, and the drawer pins them so nothing slides
+   * around underneath an open menu.
+   */
+  const [chromeHidden, setChromeHidden] = useState(false)
+  const { scrollY } = useScroll()
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    if (navOpen) return
+    const diff = y - (scrollY.getPrevious() ?? 0)
+    if (y < 80) setChromeHidden(false)
+    else if (diff > 6) setChromeHidden(true)
+    else if (diff < -6) setChromeHidden(false)
+  })
+
   // A new view should start at the top, not wherever the last one was scrolled.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
   }, [route, reduce])
 
   const Current = VIEWS[route]
+
+  /*
+   * Swiping means one thing per screen, never two. The three dated views spend
+   * their swipe on moving through weeks and days — the thing you actually do
+   * over and over in them — so the route-level gesture stands down there rather
+   * than nesting two horizontal drags and making both feel unreliable.
+   */
+  const paged = route === 'planner' || route === 'journal' || route === 'progress'
+  const at = NAV.findIndex((n) => n.id === route)
+  const goBy = (step: number) => {
+    const next = NAV[at + step]
+    if (next) go(next.id)
+  }
 
   return (
     <div className="flex min-h-full">
@@ -174,7 +206,11 @@ function Shell() {
           z-index put it straight over the menu button.
         */}
         <div className="sticky top-0 z-30 pt-[env(safe-area-inset-top)]">
-          <header className="ff-glass flex items-center gap-3 border-b px-4 py-3 lg:hidden">
+          <motion.header
+            animate={{ y: chromeHidden ? '-120%' : 0 }}
+            transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 34 }}
+            className="ff-glass flex items-center gap-3 border-b px-4 py-3 lg:hidden"
+          >
             <button
               onClick={() => setNavOpen(true)}
               aria-label="Open menu"
@@ -195,7 +231,7 @@ function Shell() {
                 <Search size={19} />
               </button>
             </span>
-          </header>
+          </motion.header>
 
           <StorageBanner />
         </div>
@@ -216,14 +252,26 @@ function Shell() {
               animate="show"
               exit="exit"
             >
-              <Current />
+              <Swipe
+                enabled={!paged}
+                onPrev={() => goBy(-1)}
+                onNext={() => goBy(1)}
+              >
+                <Current />
+              </Swipe>
             </motion.div>
           </AnimatePresence>
         </main>
       </div>
 
-      <MobileDock route={route} onGo={go} onMore={() => setNavOpen(true)} />
+      <MobileDock
+        route={route}
+        onGo={go}
+        onMore={() => setNavOpen(true)}
+        hidden={chromeHidden}
+      />
       <CommandPalette />
+      <Celebration />
       <PwaToasts />
     </div>
   )

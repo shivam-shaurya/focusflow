@@ -1,15 +1,24 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { AlignLeft, Trash2 } from 'lucide-react'
 import type { Task } from '../lib/types'
 import { useStore } from '../lib/store'
 import { cx } from './ui'
 import { CheckBox } from './motion'
+import { celebrate, originOf } from '../lib/celebrate'
 
 /** Click the title to open the task and write a description. */
 export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boolean }) {
   const { toggleTask, removeTask, updateTask } = useStore()
   const [open, setOpen] = useState(false)
+  const boxRef = useRef<HTMLSpanElement>(null)
+
+  const toggle = () => {
+    toggleTask(task.id)
+    // Only finishing earns a burst. Unticking is a correction, and rewarding a
+    // correction is how a reward stops meaning anything.
+    if (!task.done) celebrate({ kind: 'task', origin: originOf(boxRef.current) })
+  }
 
   return (
     <motion.li
@@ -26,12 +35,14 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
           'transition-colors duration-150 hover:border-[var(--color-line)] hover:bg-[var(--color-surface-2)]',
         )}
       >
+        <span ref={boxRef} className="flex">
         <CheckBox
           checked={task.done}
-          onChange={() => toggleTask(task.id)}
+          onChange={toggle}
           label={task.done ? `Mark "${task.title}" as not done` : `Mark "${task.title}" as done`}
           size="sm"
         />
+        </span>
 
         <button
           onClick={() => setOpen((v) => !v)}

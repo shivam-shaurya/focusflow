@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Download, Monitor, Moon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
+import { Check, Download, Monitor, Moon, PartyPopper, Play, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { Alert, Button, Card, SectionTitle, cx } from '../components/ui'
 import { Cover } from '../components/ImagePicker'
@@ -9,6 +9,17 @@ import { todayISO } from '../lib/date'
 import {
   estimateStorage, isPersisted, requestPersistence, useInstallPrompt, useOnline,
 } from '../lib/pwa'
+import {
+  MILESTONE_LABEL, celebrate, type CelebrationLevel, type MilestoneKind,
+} from '../lib/celebrate'
+
+const CELEBRATION_LEVELS: Array<{ id: CelebrationLevel; label: string; hint: string }> = [
+  { id: 'full', label: 'Full', hint: 'Particles, rings, and a moment for the big ones.' },
+  { id: 'calm', label: 'Calm', hint: 'The moment stays; the particles go.' },
+  { id: 'off', label: 'Off', hint: 'Nothing but the tick itself.' },
+]
+
+const MILESTONES: MilestoneKind[] = ['day', 'deadline', 'streak']
 
 const DAY_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
@@ -154,6 +165,96 @@ export function Settings() {
             ))}
           </div>
         </div>
+      </Card>
+
+      <Card>
+        <SectionTitle
+          title="Celebrations"
+          hint="What happens when you finish something."
+        />
+
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex rounded-[var(--radius-control)] border p-0.5">
+            {CELEBRATION_LEVELS.map((l) => (
+              <button
+                key={l.id}
+                onClick={() => setSettings({ celebration: l.id })}
+                aria-pressed={settings.celebration === l.id}
+                className={cx(
+                  'min-h-9 cursor-pointer rounded-[var(--radius-micro)] px-3 text-sm font-semibold transition-colors duration-150',
+                  settings.celebration === l.id
+                    ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)]'
+                    : 'text-[var(--color-fg-muted)]',
+                )}
+              >
+                {l.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-[var(--color-fg-muted)]">
+            {CELEBRATION_LEVELS.find((l) => l.id === settings.celebration)?.hint}
+          </p>
+        </div>
+
+        <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
+          <input
+            type="checkbox"
+            checked={settings.reduceMotion}
+            onChange={(e) => setSettings({ reduceMotion: e.target.checked })}
+            className="size-4 cursor-pointer accent-[var(--color-primary)]"
+          />
+          Reduce motion everywhere
+          <span className="font-medium text-[var(--color-fg-muted)]">
+            — same as the system setting, without changing it for every app.
+          </span>
+        </label>
+
+        {settings.celebration !== 'off' && (
+          <>
+            <p className="mt-6 text-sm text-[var(--color-fg-muted)]">
+              Each of these is drawn by the app and finished as it is. Adding a picture
+              or a GIF puts it inside the ring — an extra layer on the same moment,
+              never the thing that makes it work.
+            </p>
+
+            <div className="mt-3 grid gap-4 sm:grid-cols-3">
+              {MILESTONES.map((k) => (
+                <div key={k} className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold">{MILESTONE_LABEL[k]}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => celebrate({ kind: k })}
+                      aria-label={`Preview the ${MILESTONE_LABEL[k]} celebration`}
+                    >
+                      <Play size={13} /> Preview
+                    </Button>
+                  </div>
+                  <div className="overflow-hidden rounded-[var(--radius-card)] border">
+                    <Cover
+                      src={settings.celebrationMedia[k]}
+                      height={96}
+                      rounded=""
+                      label={`Image or GIF for ${MILESTONE_LABEL[k]}`}
+                      onChange={(url) =>
+                        setSettings({
+                          celebrationMedia: { ...settings.celebrationMedia, [k]: url },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-[var(--color-fg-muted)]">
+              <PartyPopper size={13} aria-hidden="true" />
+              Ticking a task or a goal always gets the small burst; only these three
+              take over the screen.
+            </p>
+          </>
+        )}
       </Card>
 
       <Card>

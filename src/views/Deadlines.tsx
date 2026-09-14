@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
   Archive, ArchiveRestore, CalendarClock, ChevronDown, Plus, Target, Trash2, TrendingUp,
@@ -11,6 +11,7 @@ import {
 import { fmtLong, todayISO } from '../lib/date'
 import { Bar, Button, Card, Empty, SectionTitle, cx } from '../components/ui'
 import { Countdown } from '../components/Countdown'
+import { celebrate } from '../lib/celebrate'
 
 const DAY_INITIALS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 const DAY_NAMES_FULL = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -227,6 +228,25 @@ function DeadlineCard({ deadline: d }: { deadline: Deadline }) {
   const s = deadlineStats(d)
   const buckets = useMemo(() => strategy(d, gran), [d, gran])
   const archived = !!d.archivedAt
+
+  /*
+   * The moment worth marking is the last hour being logged, not the archiving
+   * that happens afterwards — by then the work is already over and the screen
+   * has moved on. Starts as null so a finished deadline does not re-celebrate
+   * every time this list renders.
+   */
+  const finishedBefore = useRef<boolean | null>(null)
+  useEffect(() => {
+    const prev = finishedBefore.current
+    finishedBefore.current = s.finished
+    if (prev === false && s.finished && !archived) {
+      celebrate({
+        kind: 'deadline',
+        title: 'Deadline met',
+        detail: `${d.title} — all ${d.totalHours} hours logged.`,
+      })
+    }
+  }, [s.finished, archived, d.title, d.totalHours])
 
   const quickLog = (h: number) => logDeadlineHours(d.id, h)
 

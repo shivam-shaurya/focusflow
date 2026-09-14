@@ -6,6 +6,7 @@ import { addDays, fmtLong, iso, parseISO, todayISO } from '../lib/date'
 import type { Mood } from '../lib/types'
 import { TEMPLATES, templateById } from '../lib/templates'
 import { Button, Card, Pill, SectionTitle, cx } from '../components/ui'
+import { Swipe, useArrowPaging } from '../components/Swipe'
 
 const MOODS: Array<{ v: Mood; label: string }> = [
   { v: 1, label: 'Rough' },
@@ -72,8 +73,13 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
     .sort((a, b) => (a.date < b.date ? 1 : -1))
     .slice(0, 14)
 
+  const goPrevDay = () => setDate(iso(addDays(parseISO(date), -1)))
+  // Never past today: the journal is a record, not a plan.
+  const goNextDay = () => { if (date < todayISO()) setDate(iso(addDays(parseISO(date), 1))) }
+  useArrowPaging(goPrevDay, goNextDay)
+
   return (
-    <div className="flex flex-col gap-6">
+    <Swipe onPrev={goPrevDay} onNext={goNextDay} className="flex flex-col gap-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold text-[var(--color-primary)]">
@@ -82,7 +88,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{fmtLong(date)}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={() => setDate(iso(addDays(parseISO(date), -1)))} aria-label="Previous day">
+          <Button size="sm" variant="ghost" onClick={goPrevDay} aria-label="Previous day">
             <ChevronLeft size={16} />
           </Button>
           <input
@@ -97,7 +103,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
             size="sm"
             variant="ghost"
             disabled={date >= todayISO()}
-            onClick={() => setDate(iso(addDays(parseISO(date), 1)))}
+            onClick={goNextDay}
             aria-label="Next day"
           >
             <ChevronRight size={16} />
@@ -225,7 +231,7 @@ function Editor({ date, setDate }: { date: string; setDate: (d: string) => void 
           </ul>
         </Card>
       </div>
-    </div>
+    </Swipe>
   )
 }
 

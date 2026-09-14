@@ -114,6 +114,8 @@ export interface BlockItem {
   image?: string
 }
 
+import type { CelebrationLevel } from './celebrate'
+
 export interface Settings {
   name: string
   theme: 'dark' | 'light'
@@ -127,6 +129,23 @@ export interface Settings {
   banner: string
   avatar: string
   boardTitle: string
+  /**
+   * How much of the reward layer to show when something is finished. 'calm'
+   * keeps the moment but drops the particles; 'off' removes it entirely.
+   */
+  celebration: CelebrationLevel
+  /**
+   * Milestone kind -> image or GIF the user attached to it. Empty by default,
+   * and the celebrations are designed to be finished without it — anything here
+   * is layered into the moment, never the thing that makes it work.
+   */
+  celebrationMedia: Record<string, string>
+  /**
+   * Today, stripped to the hero, the goals and the capture field. Kept in
+   * settings rather than in component state because it is a way of working,
+   * not a mood — it should still be there tomorrow morning.
+   */
+  todayFocus: boolean
 }
 
 export interface AppState {

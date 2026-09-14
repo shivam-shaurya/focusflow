@@ -41,6 +41,8 @@ interface Store {
   setGoalNote: (id: string, date: string, text: string) => void
   removeGoal: (id: string) => void
   moveGoal: (id: string, dir: -1 | 1) => void
+  /** Commits a whole new order at once — what a drag gesture produces. */
+  reorderGoals: (ids: string[]) => void
 
   addDeadline: (d: Partial<Deadline> & { title: string; due: string; totalHours: number }) => void
   updateDeadline: (id: string, patch: Partial<Deadline>) => void
@@ -255,6 +257,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const reorderGoals = useCallback((ids: string[]) => {
+    setState((s) => {
+      // Anything the caller did not mention keeps its relative position at the
+      // end, so a stale list can never silently drop a goal from the board.
+      const rank = new Map(ids.map((id, i) => [id, i]))
+      const sorted = [...s.goals].sort(
+        (a, b) => (rank.get(a.id) ?? ids.length + a.order) - (rank.get(b.id) ?? ids.length + b.order),
+      )
+      return { ...s, goals: sorted.map((g, k) => ({ ...g, order: k })) }
+    })
+  }, [])
+
   /* ── deadlines ─────────────────────────────────────────────────────── */
 
   const addDeadline = useCallback(
@@ -458,14 +472,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       state, storageError,
       saveStatus, bootStatus: boot.status, unsaved: saveStatus === 'pending', retrySave,
       addTask, updateTask, toggleTask, removeTask,
-      addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal,
+      addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal, reorderGoals,
       addDeadline, updateDeadline, removeDeadline, logDeadlineHours, removeDeadlineLog,
       saveJournal, logSession,
       addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
       setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport,
     }),
     [state, storageError, saveStatus, boot.status, retrySave, addTask, updateTask, toggleTask,
-      removeTask, addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal,
+      removeTask, addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal, reorderGoals,
       addDeadline, updateDeadline, removeDeadline, logDeadlineHours, removeDeadlineLog, saveJournal,
       logSession, addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
       setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport],

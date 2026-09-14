@@ -14,8 +14,14 @@ import { cx } from './ui'
  * across rather than blinking it from one slot to the next.
  */
 export function MobileDock({
-  route, onGo, onMore,
-}: { route: Route; onGo: (r: Route) => void; onMore: () => void }) {
+  route, onGo, onMore, hidden = false,
+}: {
+  route: Route
+  onGo: (r: Route) => void
+  onMore: () => void
+  /** Set while the page is being scrolled down — see the shell. */
+  hidden?: boolean
+}) {
   const reduce = useReducedMotion()
   const items = DOCK.map((id) => NAV.find((n) => n.id === id)!).filter(Boolean)
   const inDock = DOCK.includes(route)
@@ -24,8 +30,14 @@ export function MobileDock({
     <motion.nav
       aria-label="Primary"
       initial={reduce ? false : { y: 90, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.15 }}
+      animate={{ y: hidden ? 130 : 0, opacity: 1 }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          // No entry delay once it is just reacting to scroll, or coming back
+          // would always feel a beat late.
+          : { type: 'spring', stiffness: 300, damping: 30, delay: hidden ? 0 : 0.05 }
+      }
       className={cx(
         'fixed inset-x-0 bottom-0 z-40 flex justify-center lg:hidden',
         'px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-2',
