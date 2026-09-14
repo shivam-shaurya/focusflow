@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, Download, Monitor, Moon, PartyPopper, Play, Settings as SettingsIcon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
+import { Check, Download, ExternalLink, Monitor, Moon, PartyPopper, Play, Settings as SettingsIcon, Share, ShieldCheck, Sun, Trash2, Undo2, Upload } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { AlwaysEditing } from '../lib/edit'
 import { Alert, Button, Card, Page, PageHeader, SectionTitle, cx } from '../components/ui'
@@ -391,6 +391,43 @@ export function Settings() {
             )}
           </div>
         )}
+      </Card>
+
+      {/*
+        The same credit as the README, in the app itself. Someone using this on
+        their phone every morning never sees a repository, and the person whose
+        system they are actually following should not only be named somewhere
+        they will never look.
+      */}
+      <Card>
+        <SectionTitle title="Credit" hint="Whose system this is." />
+        <div className="flex flex-col gap-3 text-sm leading-relaxed text-[var(--color-fg-muted)]">
+          <p>
+            The system this app runs on — the daily goals, the journal templates, the
+            New&nbsp;Me page and the thinking behind all of it — is the work of{' '}
+            <span className="font-bold text-[var(--color-fg)]">Shwetabh Gangwar</span>.
+            The research, the templates and the method are his.
+          </p>
+          <p>
+            This app is a personal project: somebody wanted to run his system as
+            software instead of a document. The code and the interface are built
+            from scratch, but they are only a container. What makes it worth using
+            is his.
+          </p>
+          <p>
+            No claim is made over his system or the work behind it, and this project
+            is not affiliated with him or endorsed by him.
+          </p>
+          <a
+            href="https://www.youtube.com/@ShwetabhGangwar1"
+            target="_blank"
+            rel="noreferrer noopener"
+            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-[var(--radius-control)] border border-[var(--color-line-strong)] px-4 text-sm font-semibold text-[var(--color-fg)] transition-colors duration-150 hover:bg-[var(--color-surface-2)]"
+          >
+            <ExternalLink size={15} aria-hidden="true" />
+            Shwetabh Gangwar on YouTube
+          </a>
+        </div>
       </Card>
     </Page>
     </AlwaysEditing>
