@@ -80,17 +80,21 @@
 .dark {
   color-scheme: dark;
 
-  --color-bg: #08100f;
-  --color-surface: #0f1917;
-  --color-surface-2: #16221f;
-  --color-surface-3: #1d2b27;
+  /* Stepped at dL 0.05 in OKLab. The previous ladder sat at 0.035, which is
+     below the point where a tile reads as sitting above the page — WCAG ratio
+     is useless for judging this at near-black, since its +0.05 constant swamps
+     the difference. */
+  --color-bg: #020907;
+  --color-surface: #0b1513;
+  --color-surface-2: #16211e;
+  --color-surface-3: #222d2a;
 
   --color-fg: #e8f3f1;
   --color-fg-muted: #93a9a5;
   --color-fg-subtle: #6b817e;
 
-  --color-line: #22302c;
-  --color-line-strong: #33453f;
+  --color-line: #313c39;
+  --color-line-strong: #4a5652;
 
   --color-primary: #2dd4bf;
   --color-on-primary: #04211e;

@@ -45,8 +45,6 @@ export function GoalList({
                   size="sm"
                 />
 
-                <span aria-hidden="true" className="shrink-0 text-sm">{g.emoji}</span>
-
                 <button
                   onClick={() => setOpenId(open ? null : g.id)}
                   aria-expanded={open}
@@ -140,12 +138,6 @@ export function GoalList({
                           Shared &mdash; changing this changes every day
                         </span>
                         <div className="flex gap-2">
-                          <input
-                            value={g.emoji}
-                            onChange={(e) => updateGoal(g.id, { emoji: e.target.value.slice(0, 4) })}
-                            aria-label={`Emoji for ${g.name}`}
-                            className="min-h-10 w-12 rounded-[var(--radius-control)] border bg-[var(--color-surface)] text-center text-sm"
-                          />
                           <input
                             value={g.name}
                             onChange={(e) => updateGoal(g.id, { name: e.target.value })}

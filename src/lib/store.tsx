@@ -204,7 +204,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       goals: [
         ...s.goals,
         {
-          id: uid(), name, emoji: '⭐', description: '', notes: {}, history: [],
+          id: uid(), name, emoji: '', description: '', notes: {}, history: [],
           order: s.goals.length,
         },
       ],

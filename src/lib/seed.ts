@@ -8,21 +8,21 @@ const items = (...texts: string[]): BlockItem[] =>
 const checks = (...texts: string[]): BlockItem[] =>
   texts.map((text) => ({ id: uid(), text, done: false }))
 
-export const DEFAULT_GOAL_NAMES: Array<[string, string]> = [
-  ['Meditation', '🧘'],
-  ['Interpersonal skills', '🗣️'],
-  ['Reading', '📖'],
-  ['Sales', '💼'],
-  ['Studying', '📚'],
-  ['Workout', '💪'],
-  ['Running', '🏃'],
+export const DEFAULT_GOAL_NAMES: string[] = [
+  'Meditation',
+  'Interpersonal skills',
+  'Reading',
+  'Sales',
+  'Studying',
+  'Workout',
+  'Running',
 ]
 
 export const seedGoals = (): DailyGoal[] =>
-  DEFAULT_GOAL_NAMES.map(([name, emoji], order) => ({
+  DEFAULT_GOAL_NAMES.map((name, order) => ({
     id: uid(),
     name,
-    emoji,
+    emoji: '',
     description: '',
     notes: {},
     history: [],
