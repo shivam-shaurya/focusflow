@@ -159,11 +159,93 @@ h1, h2, h3 {
 }
 ::-webkit-scrollbar-track { background: transparent; }
 
+
+/* ── Motion utilities ───────────────────────────────────────────────────────
+   Two effects that belong in CSS rather than in JS: both run purely on the
+   compositor, neither needs to know anything about React state, and both are
+   already disabled by the reduced-motion block at the end of this file. */
+
+/* A highlight that travels across text. The gradient is painted into the glyphs
+   via background-clip, so there is no overlay element to mis-position. */
+.ff-shimmer {
+  background: linear-gradient(
+    100deg,
+    var(--color-fg) 38%,
+    color-mix(in oklab, var(--color-primary) 85%, white) 50%,
+    var(--color-fg) 62%
+  );
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: ff-shimmer 7s ease-in-out infinite;
+}
+@keyframes ff-shimmer {
+  0%, 62% { background-position: 170% 0; }
+  100% { background-position: -70% 0; }
+}
+
+/* One diagonal sweep across a filled button on hover. Driven by a custom
+   property so the sweep can be animated on a single element, and so the button
+   needs nothing but `ff-shine` plus its own background. */
+@property --ff-shine {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -30%;
+}
+.ff-shine {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.ff-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent calc(var(--ff-shine) - 18%),
+    color-mix(in oklab, white 26%, transparent) var(--ff-shine),
+    transparent calc(var(--ff-shine) + 18%)
+  );
+  transition: --ff-shine 0.7s ease;
+}
+.ff-shine:hover::after { --ff-shine: 130%; }
+
+/* Frosted bar, used by the mobile dock and the command palette. Backdrop blur
+   is a progressive nicety: where it is unsupported the surface colour alone
+   still gives full contrast, because the mix is opaque enough on its own. */
+.ff-glass {
+  background: color-mix(in oklab, var(--color-surface) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* A task title crossing out. Animating the rule's width rather than toggling
+   `line-through` makes completion feel like an act instead of a repaint. */
+.ff-strike {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 58%;
+  background-size: 0% 1.5px;
+  transition: background-size 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ff-strike[data-done="true"] { background-size: 100% 1.5px; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Killing the animation would freeze the gradient mid-sweep and leave the
+     wordmark part-transparent, so drop the clip and fall back to plain text. */
+  .ff-shimmer {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-fg);
   }
 }

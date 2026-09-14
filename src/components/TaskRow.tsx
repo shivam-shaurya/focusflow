@@ -16,7 +16,7 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, height: 0 }}
+      exit={{ opacity: 0, height: 0, marginTop: 0 }}
       transition={{ duration: 0.18, ease: 'easeOut' }}
       className="group"
     >
@@ -38,10 +38,13 @@ export function TaskRow({ task, showDate = false }: { task: Task; showDate?: boo
           aria-expanded={open}
           className={cx(
             'min-w-0 flex-1 cursor-pointer truncate text-left text-sm font-medium',
-            task.done && 'text-[var(--color-fg-muted)] line-through',
+            'transition-colors duration-200',
+            task.done && 'text-[var(--color-fg-muted)]',
           )}
         >
-          {task.title}
+          {/* The rule draws itself across the words rather than appearing on
+              them — completion is the one moment in a task list worth animating. */}
+          <span className="ff-strike" data-done={task.done}>{task.title}</span>
         </button>
 
         {task.description.trim() && !open && (

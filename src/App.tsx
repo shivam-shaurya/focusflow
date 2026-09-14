@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import {
-  BookOpen, CalendarClock, CalendarDays, Flame, LayoutGrid, Menu,
-  Settings as SettingsIcon, TrendingUp, X,
-} from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'motion/react'
+import { Menu, Search, X } from 'lucide-react'
 import { StoreProvider, useStore } from './lib/store'
 import { Today } from './views/Today'
 import { Planner } from './views/Planner'
@@ -12,32 +9,29 @@ import { Deadlines } from './views/Deadlines'
 import { Progress } from './views/Progress'
 import { NewMe } from './views/NewMe'
 import { Settings } from './views/Settings'
-import { cx } from './components/ui'
+import { cx, ShimmerText } from './components/ui'
 import { OfflineBadge, PwaToasts } from './components/PwaToasts'
 import { StorageBanner } from './components/StorageBanner'
+import { CommandPalette, openPalette } from './components/CommandPalette'
+import { MobileDock } from './components/MobileDock'
 import { requestPersistence, useOnline } from './lib/pwa'
-import { spring, viewVariants } from './lib/motion'
+import { indicator, spring, viewVariants } from './lib/motion'
+import { NAV, routeFromHash, type NavEntry, type Route } from './lib/nav'
 
-type Route = 'today' | 'planner' | 'deadlines' | 'journal' | 'newme' | 'progress' | 'settings'
-
-const NAV: Array<{ id: Route; label: string; icon: typeof LayoutGrid; hint: string }> = [
-  { id: 'today', label: 'Today', icon: LayoutGrid, hint: 'One day at a time' },
-  { id: 'planner', label: 'Planner', icon: CalendarDays, hint: 'The week ahead' },
-  { id: 'deadlines', label: 'Deadlines', icon: CalendarClock, hint: 'What is due' },
-  { id: 'journal', label: 'Journal', icon: BookOpen, hint: 'Introspection' },
-  { id: 'newme', label: 'New Me', icon: Flame, hint: 'Read every day' },
-  { id: 'progress', label: 'Progress', icon: TrendingUp, hint: 'Week · month · year' },
-  { id: 'settings', label: 'Settings', icon: SettingsIcon, hint: 'Rhythm and data' },
-]
-
-const routeFromHash = (): Route => {
-  const h = window.location.hash.replace('#/', '')
-  return (NAV.find((n) => n.id === h)?.id ?? 'today') as Route
+const VIEWS: Record<Route, () => React.JSX.Element> = {
+  today: Today,
+  planner: Planner,
+  deadlines: Deadlines,
+  journal: Journal,
+  newme: NewMe,
+  progress: Progress,
+  settings: Settings,
 }
 
 function Shell() {
   const { state, saveStatus } = useStore()
   const online = useOnline()
+  const reduce = useReducedMotion()
 
   // Ask once per session; the browser only shows a prompt where it wants to.
   useEffect(() => {
@@ -61,8 +55,9 @@ function Shell() {
   // Number keys jump between views — fewer clicks between thought and screen.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       const el = e.target as HTMLElement | null
-      if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) return
+      if (el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable)) return
       const i = Number(e.key)
       if (i >= 1 && i <= NAV.length) go(NAV[i - 1].id)
     }
@@ -70,21 +65,20 @@ function Shell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  const Current = {
-    today: Today,
-    planner: Planner,
-    deadlines: Deadlines,
-    journal: Journal,
-    newme: NewMe,
-    progress: Progress,
-    settings: Settings,
-  }[route]
+  // A new view should start at the top, not wherever the last one was scrolled.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' })
+  }, [route, reduce])
+
+  const Current = VIEWS[route]
 
   return (
     <div className="flex min-h-full">
+      <ReadingProgress />
+
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[var(--radius-control)] focus:bg-[var(--color-primary)] focus:px-4 focus:py-2 focus:font-semibold focus:text-[var(--color-on-primary)]"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-[var(--radius-control)] focus:bg-[var(--color-primary)] focus:px-4 focus:py-2 focus:font-semibold focus:text-[var(--color-on-primary)]"
       >
         Skip to content
       </a>
@@ -95,22 +89,42 @@ function Shell() {
         className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col overflow-y-auto border-r bg-[var(--color-surface)] p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))] lg:flex"
       >
         <Brand theme={state.settings.yearTheme} />
-        <ul className="mt-6 flex flex-col gap-1">
+
+        {/*
+          A fake search field rather than a real one. It reads as the place to
+          start — which is the point — but the actual input lives in the palette,
+          so there is one search box in the app instead of two that disagree.
+        */}
+        <button
+          onClick={openPalette}
+          className={cx(
+            'mt-5 flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-[var(--radius-control)]',
+            'border border-[var(--color-line)] bg-[var(--color-surface-2)] px-3 text-left',
+            'text-sm text-[var(--color-fg-subtle)]',
+            'transition-colors duration-150 hover:border-[var(--color-line-strong)] hover:text-[var(--color-fg-muted)]',
+          )}
+        >
+          <Search size={15} aria-hidden="true" />
+          <span className="flex-1">Search or add…</span>
+          <span className="flex gap-0.5"><Kbd>⌘</Kbd><Kbd>K</Kbd></span>
+        </button>
+
+        <ul className="mt-4 flex flex-col gap-1">
           {NAV.map((n, i) => (
             <NavItem key={n.id} item={n} index={i} active={route === n.id} onClick={() => go(n.id)} scope="rail" />
           ))}
         </ul>
         <div className="mt-auto flex flex-col gap-3">
-        <OfflineBadge online={online} />
-        <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
-          Press <kbd className="rounded-[var(--radius-micro)] border px-1">1</kbd>–<kbd className="rounded-[var(--radius-micro)] border px-1">7</kbd> to
-          switch views.{' '}
-          {saveStatus === 'saved'
-            ? 'Everything saves automatically.'
-            : saveStatus === 'pending'
-              ? 'Saving…'
-              : 'Saving is paused — see the banner above.'}
-        </p>
+          <OfflineBadge online={online} />
+          <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
+            <Kbd>1</Kbd>–<Kbd>7</Kbd> switch views. <Kbd>⌘</Kbd><Kbd>K</Kbd> opens the
+            command bar.{' '}
+            {saveStatus === 'saved'
+              ? 'Everything saves automatically.'
+              : saveStatus === 'pending'
+                ? 'Saving…'
+                : 'Saving is paused — see the banner above.'}
+          </p>
         </div>
       </nav>
 
@@ -130,7 +144,7 @@ function Shell() {
               initial={{ x: -280 }}
               animate={{ x: 0 }}
               exit={{ x: -280 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              transition={{ type: 'spring', stiffness: 320, damping: 34 }}
               onClick={(e) => e.stopPropagation()}
               className="flex h-dvh w-64 flex-col overflow-y-auto border-r bg-[var(--color-surface)] p-4 pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(1rem+env(safe-area-inset-bottom))]"
             >
@@ -160,8 +174,8 @@ function Shell() {
           overlapping. They were both `sticky top-0`, and the banner's higher
           z-index put it straight over the menu button.
         */}
-        <div className="sticky top-0 z-30 bg-[var(--color-bg)] pt-[env(safe-area-inset-top)]">
-          <header className="flex items-center gap-3 border-b bg-[var(--color-bg)]/90 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="sticky top-0 z-30 pt-[env(safe-area-inset-top)]">
+          <header className="ff-glass flex items-center gap-3 border-b px-4 py-3 lg:hidden">
             <button
               onClick={() => setNavOpen(true)}
               aria-label="Open menu"
@@ -169,8 +183,19 @@ function Shell() {
             >
               <Menu size={20} />
             </button>
-            <span className="font-extrabold tracking-tight">FocusFlow</span>
-            <span className="ml-auto"><OfflineBadge online={online} /></span>
+            <span className="font-extrabold tracking-tight">
+              Focus<span className="text-[var(--color-primary)]">Flow</span>
+            </span>
+            <span className="ml-auto flex items-center gap-2">
+              <OfflineBadge online={online} />
+              <button
+                onClick={openPalette}
+                aria-label="Search or add"
+                className="cursor-pointer rounded-[var(--radius-control)] p-2 hover:bg-[var(--color-surface-2)]"
+              >
+                <Search size={19} />
+              </button>
+            </span>
           </header>
 
           <StorageBanner />
@@ -178,7 +203,11 @@ function Shell() {
 
         <main
           id="main"
-          className="flex-1 px-4 py-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-10 lg:py-10"
+          className={cx(
+            'flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10',
+            // Room for the floating dock on phones; none is needed on desktop.
+            'pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-10',
+          )}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -194,8 +223,37 @@ function Shell() {
         </main>
       </div>
 
+      <MobileDock route={route} onGo={go} onMore={() => setNavOpen(true)} />
+      <CommandPalette />
       <PwaToasts />
     </div>
+  )
+}
+
+/**
+ * A hairline at the very top that fills as the page scrolls. On the long views
+ * (New Me, a month of Progress) it is the only cue for how much is left, and it
+ * costs one composited transform — no scroll listener in React.
+ */
+function ReadingProgress() {
+  const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 26, restDelta: 0.001 })
+  if (reduce) return null
+  return (
+    <motion.div
+      aria-hidden="true"
+      style={{ scaleX }}
+      className="fixed inset-x-0 top-0 z-[55] h-0.5 origin-left bg-[var(--color-primary)]"
+    />
+  )
+}
+
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="rounded-[var(--radius-micro)] border bg-[var(--color-surface-2)] px-1 font-sans text-[11px] font-semibold">
+      {children}
+    </kbd>
   )
 }
 
@@ -203,7 +261,7 @@ function Brand({ theme }: { theme: string }) {
   return (
     <div>
       <p className="text-lg font-extrabold tracking-tight">
-        Focus<span className="text-[var(--color-primary)]">Flow</span>
+        <ShimmerText>FocusFlow</ShimmerText>
       </p>
       <p className="text-xs text-[var(--color-fg-muted)]">
         {theme || 'Built for ADHD brains'}
@@ -215,7 +273,7 @@ function Brand({ theme }: { theme: string }) {
 function NavItem({
   item, index, active, onClick, scope,
 }: {
-  item: (typeof NAV)[number]
+  item: NavEntry
   index: number
   active: boolean
   onClick: () => void
@@ -231,7 +289,7 @@ function NavItem({
         whileTap={{ scale: 0.97 }}
         transition={spring}
         className={cx(
-          'relative flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-[var(--radius-control)] px-3',
+          'group relative flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-[var(--radius-control)] px-3',
           'text-sm font-semibold transition-colors duration-150',
           active
             ? 'text-[var(--color-on-primary)]'
@@ -241,11 +299,20 @@ function NavItem({
         {active && (
           <motion.span
             layoutId={`nav-active-${scope}`}
-            transition={spring}
+            transition={indicator}
             className="absolute inset-0 -z-10 rounded-[var(--radius-control)] bg-[var(--color-primary)]"
           />
         )}
-        <Icon size={17} aria-hidden="true" />
+        <motion.span
+          aria-hidden="true"
+          // The icon leads the label in by a hair on hover: enough to feel
+          // responsive, not enough to look like the row is rearranging.
+          whileHover={{ x: 1 }}
+          transition={spring}
+          className="flex"
+        >
+          <Icon size={17} />
+        </motion.span>
         <span className="flex-1 text-left">{item.label}</span>
         <span className={cx('text-xs opacity-50', active && 'opacity-80')}>{index + 1}</span>
       </motion.button>

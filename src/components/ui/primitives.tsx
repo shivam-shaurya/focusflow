@@ -1,8 +1,10 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { spring } from '../../lib/motion'
+import { cx } from './cx'
+import { Spotlight, SpotlightArea } from './interactions'
 
-export const cx = (...v: Array<string | false | null | undefined>) => v.filter(Boolean).join(' ')
+export { cx }
 
 /* ── Surfaces ──────────────────────────────────────────────────────────────── */
 
@@ -40,6 +42,7 @@ export function Card({
   elevation = 'tile',
   tone = 'default',
   hover = false,
+  spotlight = false,
 }: {
   children: ReactNode
   className?: string
@@ -48,14 +51,50 @@ export function Card({
   tone?: CardTone
   /** Lift on pointer hover — only for tiles that are themselves interactive. */
   hover?: boolean
+  /**
+   * Light the tile under the cursor. Unlike `hover` this is not a promise that
+   * the tile does something when clicked, so it is safe on reading surfaces.
+   */
+  spotlight?: boolean
 }) {
   const reduce = useReducedMotion()
   const classes = cx(
-    'rounded-[var(--radius-card)] border p-5',
+    'relative rounded-[var(--radius-card)] border p-5',
     ELEVATION[elevation],
     CARD_TONE[tone],
     className,
   )
+
+  const inner = (
+    <>
+      {spotlight && !reduce && <Spotlight />}
+      {/* The wash is painted behind the content, never over it. */}
+      <div className="relative">{children}</div>
+    </>
+  )
+
+  if (spotlight && !reduce) {
+    if (hover) {
+      const MH = motion[As]
+      return (
+        <SpotlightArea className="h-full">
+          <MH
+            className={cx(classes, 'h-full')}
+            whileHover={{ y: -3, boxShadow: 'var(--shadow-raised)' }}
+            transition={spring}
+          >
+            {inner}
+          </MH>
+        </SpotlightArea>
+      )
+    }
+    return (
+      <SpotlightArea className="h-full">
+        <As className={cx(classes, 'h-full')}>{inner}</As>
+      </SpotlightArea>
+    )
+  }
+
   if (!hover || reduce) return <As className={classes}>{children}</As>
   const M = motion[As]
   return (
@@ -109,19 +148,24 @@ export function Button({
 }: ButtonProps) {
   const base =
     'inline-flex cursor-pointer items-center justify-center gap-2 rounded-[var(--radius-control)] ' +
-    'font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 ' +
-    'disabled:cursor-not-allowed disabled:opacity-50'
+    'font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-150 ' +
+    // A 2% press is below the threshold where a button looks like it is
+    // shrinking, and above the one where nothing seems to have happened.
+    'active:scale-[0.98] ' +
+    'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100'
   const sizes = {
     sm: 'min-h-9 px-3 text-xs',
     md: 'min-h-11 px-4 text-sm',
   }
   const variants = {
+    // The filled variants carry one diagonal sweep on hover. It is only on the
+    // two that represent a commitment, so the sweep still means something.
     primary:
-      'bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[var(--shadow-tile)] ' +
-      'hover:bg-[var(--color-secondary)]',
+      'ff-shine bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[var(--shadow-tile)] ' +
+      'hover:bg-[var(--color-secondary)] hover:shadow-[var(--shadow-raised)]',
     accent:
-      'bg-[var(--color-accent)] text-[var(--color-on-accent)] shadow-[var(--shadow-tile)] ' +
-      'hover:opacity-90',
+      'ff-shine bg-[var(--color-accent)] text-[var(--color-on-accent)] shadow-[var(--shadow-tile)] ' +
+      'hover:opacity-90 hover:shadow-[var(--shadow-raised)]',
     outline:
       'border border-[var(--color-line-strong)] bg-[var(--color-surface)] text-[var(--color-fg)] ' +
       'hover:bg-[var(--color-surface-2)]',

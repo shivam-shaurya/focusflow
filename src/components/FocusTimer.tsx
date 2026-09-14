@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { Pause, Play, RotateCcw, Coffee } from 'lucide-react'
 import { useStore } from '../lib/store'
-import { Button, Card, cx } from './ui'
+import { Button, Card, cx, Magnetic } from './ui'
 
 /**
  * A single visible countdown. ADHD design note: time blindness means an
@@ -10,6 +10,7 @@ import { Button, Card, cx } from './ui'
  */
 export function FocusTimer({ compact = false }: { compact?: boolean }) {
   const { state, logSession } = useStore()
+  const reduce = useReducedMotion()
   const { focusLength, breakLength } = state.settings
   const [mode, setMode] = useState<'focus' | 'break'>('focus')
   const [running, setRunning] = useState(false)
@@ -64,7 +65,7 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
   const open = state.tasks.filter((t) => !t.done)
 
   return (
-    <Card className={cx('flex flex-col gap-4', compact && 'p-4')}>
+    <Card spotlight className={cx('flex h-full flex-col gap-4', compact && 'p-4')}>
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold tracking-wide uppercase text-[var(--color-fg-muted)]">
           {mode === 'focus' ? 'Focus block' : 'Break'}
@@ -74,6 +75,25 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
 
       <div className="flex items-center gap-5">
         <div className="relative shrink-0">
+          {/*
+            A slow breath behind the ring while the clock is running. Time
+            blindness is the problem this whole component exists for, and a
+            static dial gives no cue that it is still counting — this does,
+            without ever pulling the eye off the work.
+          */}
+          {running && !reduce && (
+            <motion.span
+              aria-hidden="true"
+              className="absolute inset-3 rounded-full blur-xl"
+              style={{
+                background: mode === 'focus'
+                  ? 'color-mix(in oklab, var(--color-primary) 30%, transparent)'
+                  : 'color-mix(in oklab, var(--color-accent) 30%, transparent)',
+              }}
+              animate={{ opacity: [0.25, 0.6, 0.25], scale: [0.94, 1.04, 0.94] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
           <svg width="128" height="128" viewBox="0 0 128 128" role="img"
                aria-label={`${mm} minutes ${ss} seconds remaining`}>
             <circle cx="64" cy="64" r={R} fill="none" strokeWidth="8"
@@ -107,10 +127,12 @@ export function FocusTimer({ compact = false }: { compact?: boolean }) {
             </select>
           </label>
           <div className="flex flex-wrap gap-2">
-            <Button variant={running ? 'outline' : 'primary'} onClick={start}>
-              {running ? <Pause size={16} /> : <Play size={16} />}
-              {running ? 'Pause' : left === total ? 'Start' : 'Resume'}
-            </Button>
+            <Magnetic>
+              <Button variant={running ? 'outline' : 'primary'} onClick={start}>
+                {running ? <Pause size={16} /> : <Play size={16} />}
+                {running ? 'Pause' : left === total ? 'Start' : 'Resume'}
+              </Button>
+            </Magnetic>
             <Button variant="ghost" onClick={reset} aria-label="Reset timer">
               <RotateCcw size={16} /> Reset
             </Button>

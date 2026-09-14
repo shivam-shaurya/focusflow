@@ -54,3 +54,37 @@ export const tileHover = {
   whileHover: { y: -3, transition: spring },
   whileTap: { scale: 0.995, transition: easeFast },
 }
+
+/* ── Overlays ──────────────────────────────────────────────────────────────── */
+
+/** Scrim behind a modal: pure opacity, fast, never springy. */
+export const scrimVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: easeFast },
+  exit: { opacity: 0, transition: easeFast },
+}
+
+/**
+ * A centred dialog. It arrives slightly small and slightly low, which reads as
+ * "coming forward" rather than "appearing"; it leaves faster than it enters,
+ * because waiting on a dismissal is the one delay a person always notices.
+ */
+export const dialogVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.96, y: 12 },
+  show: { opacity: 1, scale: 1, y: 0, transition: spring },
+  exit: { opacity: 0, scale: 0.98, y: 6, transition: easeFast },
+}
+
+/** Bottom sheet, for the same dialog on a phone. */
+export const sheetVariants: Variants = {
+  hidden: { opacity: 0, y: '100%' },
+  show: { opacity: 1, y: 0, transition: springSoft },
+  exit: { opacity: 0, y: '100%', transition: easeFast },
+}
+
+/**
+ * The shared spring for every sliding active-indicator (rail, dock, tabs).
+ * Slightly softer than `spring` because the pill travels further than a tile
+ * does, and a stiff spring over that distance looks like a jump cut.
+ */
+export const indicator: Transition = { type: 'spring', stiffness: 380, damping: 32, mass: 0.9 }

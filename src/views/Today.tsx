@@ -3,7 +3,7 @@ import { AnimatePresence } from 'motion/react'
 import { ArrowRight, Flame, Inbox, Sparkles, Star, Target } from 'lucide-react'
 import { useStore } from '../lib/store'
 import { fmtLong, iso, streak, todayISO, weekDates } from '../lib/date'
-import { Bar, Button, Card, Empty, Eyebrow, SectionTitle } from '../components/ui'
+import { Bar, Button, Card, Empty, Eyebrow, SectionTitle, Spotlight, SpotlightArea } from '../components/ui'
 import { TaskRow } from '../components/TaskRow'
 import { QuickAdd } from '../components/QuickAdd'
 import { FocusTimer } from '../components/FocusTimer'
@@ -52,7 +52,9 @@ export function Today() {
 
         {/* ── Hero: cover image, greeting, the one thing, completion ring ── */}
         <StaggerItem className="md:col-span-6 xl:col-span-4">
+          <SpotlightArea className="h-full">
           <div className="relative h-full overflow-hidden rounded-[var(--radius-card)] border border-[var(--color-line)] bg-[var(--color-surface)] shadow-[var(--shadow-raised)]">
+            <Spotlight size={520} strength={14} />
             <div className="relative">
               <Cover
                 src={cover}
@@ -111,12 +113,13 @@ export function Today() {
               </div>
             </div>
           </div>
+          </SpotlightArea>
         </StaggerItem>
 
         {/* ── Small stat tiles ── */}
         <StaggerItem className="md:col-span-3 xl:col-span-2">
           <div className="grid h-full grid-cols-2 gap-4 xl:grid-cols-1">
-            <Card className="flex flex-col justify-center !p-4">
+            <Card spotlight className="flex flex-col justify-center !p-4">
               <Eyebrow className="flex items-center gap-1.5">
                 <Flame size={12} aria-hidden="true" /> Streak
               </Eyebrow>
@@ -130,7 +133,7 @@ export function Today() {
                 </span>
               </p>
             </Card>
-            <Card className="flex flex-col justify-center !p-4">
+            <Card spotlight className="flex flex-col justify-center !p-4">
               <Eyebrow className="flex items-center gap-1.5">
                 <Target size={12} aria-hidden="true" /> Done today
               </Eyebrow>
@@ -156,7 +159,7 @@ export function Today() {
 
         {/* ── Daily goals: the working surface, widest tile ── */}
         <StaggerItem className="md:col-span-6 xl:col-span-4">
-          <Card className="h-full">
+          <Card spotlight className="h-full">
             <SectionTitle
               title="Daily goals"
               hint="Rename, reorder, or delete any of them. Click one to add detail."
@@ -193,7 +196,7 @@ export function Today() {
 
         {/* ── Tasks ── */}
         <StaggerItem className="md:col-span-6 xl:col-span-3">
-          <Card className="h-full">
+          <Card spotlight className="h-full">
             <SectionTitle title="Today's tasks" hint="One-off things, on top of the daily goals." />
             <QuickAdd date={today} placeholder="What else needs to happen today?" />
             <ul className="mt-3 flex flex-col">
@@ -215,7 +218,7 @@ export function Today() {
 
         {/* ── Inbox ── */}
         <StaggerItem className="md:col-span-6 xl:col-span-3">
-          <Card className="h-full">
+          <Card spotlight className="h-full">
             <SectionTitle
               title="Inbox"
               hint="Dump it here now, decide later."
