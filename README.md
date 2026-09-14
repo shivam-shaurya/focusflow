@@ -3,6 +3,26 @@
 An ADHD-friendly daily planner, introspection journal, and long-horizon progress
 tracker. Motion-style app shell, everything stored locally in the browser.
 
+> **The system in this app is Shwetabh Gangwar's, not mine.** I built the
+> software; he worked out the method it runs on. See [Credit](#credit).
+
+## Credit
+
+The system this app implements — the daily goals, the journal templates, the
+New Me page, the framing behind all of it — is the work of **Shwetabh Gangwar**
+([YouTube](https://www.youtube.com/@ShwetabhGangwar1)). The research, the
+templates and the method are his.
+
+This is a personal project. I wanted to run his system as software instead of a
+document, so I built one for my own use. The app is mine — every line of the
+code and every decision in the interface, written from scratch — but it is only
+a container. What makes it worth using is his.
+
+I make no claim over his system, his templates, or the work behind them, and
+this project is not affiliated with him or endorsed by him. If you came here for
+the method rather than the app, go to the source:
+<https://www.youtube.com/@ShwetabhGangwar1>.
+
 ## Run
 
 ```bash
