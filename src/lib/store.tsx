@@ -3,9 +3,11 @@ import {
   type ReactNode,
 } from 'react'
 import type {
-  AppState, Block, BlockItem, BlockKind, DailyGoal, FocusSession, JournalEntry, Settings, Task,
+  AppState, Block, BlockItem, BlockKind, DailyGoal, Deadline, FocusSession, JournalEntry,
+  Settings, Task,
 } from './types'
 import { uid } from './seed'
+import { todayISO } from './date'
 import {
   clearPreImport, loadState, migrate, readPreImport, saveState, seed, stashPreImport,
   type LoadStatus,
@@ -39,6 +41,13 @@ interface Store {
   setGoalNote: (id: string, date: string, text: string) => void
   removeGoal: (id: string) => void
   moveGoal: (id: string, dir: -1 | 1) => void
+
+  addDeadline: (d: Partial<Deadline> & { title: string; due: string; totalHours: number }) => void
+  updateDeadline: (id: string, patch: Partial<Deadline>) => void
+  removeDeadline: (id: string) => void
+  /** Records effort against a deadline. Negative hours are rejected. */
+  logDeadlineHours: (id: string, hours: number, date?: string, note?: string) => void
+  removeDeadlineLog: (id: string, logId: string) => void
 
   saveJournal: (entry: Partial<JournalEntry> & { date: string }) => void
   logSession: (s: Omit<FocusSession, 'id'>) => void
@@ -246,6 +255,56 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  /* ── deadlines ─────────────────────────────────────────────────────── */
+
+  const addDeadline = useCallback(
+    (d: Partial<Deadline> & { title: string; due: string; totalHours: number }) => {
+      const deadline: Deadline = {
+        id: uid(),
+        description: '',
+        log: [],
+        workdays: [0, 1, 2, 3, 4, 5, 6],
+        createdAt: Date.now(),
+        ...d,
+      }
+      setState((s) => ({ ...s, deadlines: [...s.deadlines, deadline] }))
+    },
+    [],
+  )
+
+  const updateDeadline = useCallback((id: string, patch: Partial<Deadline>) => {
+    setState((s) => ({
+      ...s,
+      deadlines: s.deadlines.map((d) => (d.id === id ? { ...d, ...patch } : d)),
+    }))
+  }, [])
+
+  const removeDeadline = useCallback((id: string) => {
+    setState((s) => ({ ...s, deadlines: s.deadlines.filter((d) => d.id !== id) }))
+  }, [])
+
+  const logDeadlineHours = useCallback(
+    (id: string, hours: number, date = todayISO(), note?: string) => {
+      if (!Number.isFinite(hours) || hours <= 0) return
+      setState((s) => ({
+        ...s,
+        deadlines: s.deadlines.map((d) =>
+          d.id === id ? { ...d, log: [...d.log, { id: uid(), date, hours, note }] } : d,
+        ),
+      }))
+    },
+    [],
+  )
+
+  const removeDeadlineLog = useCallback((id: string, logId: string) => {
+    setState((s) => ({
+      ...s,
+      deadlines: s.deadlines.map((d) =>
+        d.id === id ? { ...d, log: d.log.filter((l) => l.id !== logId) } : d,
+      ),
+    }))
+  }, [])
+
   /* ── journal ───────────────────────────────────────────────────────── */
 
   const saveJournal = useCallback((entry: Partial<JournalEntry> & { date: string }) => {
@@ -400,12 +459,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       saveStatus, bootStatus: boot.status, unsaved: saveStatus === 'pending', retrySave,
       addTask, updateTask, toggleTask, removeTask,
       addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal,
+      addDeadline, updateDeadline, removeDeadline, logDeadlineHours, removeDeadlineLog,
       saveJournal, logSession,
       addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
       setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport,
     }),
     [state, storageError, saveStatus, boot.status, retrySave, addTask, updateTask, toggleTask,
-      removeTask, addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal, saveJournal,
+      removeTask, addGoal, updateGoal, toggleGoal, setGoalNote, removeGoal, moveGoal,
+      addDeadline, updateDeadline, removeDeadline, logDeadlineHours, removeDeadlineLog, saveJournal,
       logSession, addBlock, updateBlock, removeBlock, moveBlock, addItem, updateItem, removeItem,
       setSettings, setDayCover, resetAll, exportJSON, importJSON, undoImport, canUndoImport],
   )

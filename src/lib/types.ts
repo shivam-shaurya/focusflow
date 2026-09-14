@@ -31,6 +31,38 @@ export interface DailyGoal {
   order: number
 }
 
+/** One session of work logged against a deadline. */
+export interface HourLog {
+  id: string
+  date: string
+  hours: number
+  note?: string
+}
+
+/**
+ * A dated commitment with an effort estimate — "finish the syllabus, 40 hours,
+ * by the 30th". The planner turns that into a required daily pace.
+ */
+export interface Deadline {
+  id: string
+  title: string
+  description: string
+  /** ISO date it is due; the countdown runs to the end of this day. */
+  due: string
+  /** Total hours the work is estimated to need. */
+  totalHours: number
+  /** Logged effort, kept as entries so progress stays auditable. */
+  log: HourLog[]
+  /**
+   * Weekday indices (0 = Monday) available to work on this. Lets the pace maths
+   * skip days you already know you won't touch it.
+   */
+  workdays: number[]
+  createdAt: number
+  /** Set when finished or abandoned; archived deadlines leave the active list. */
+  archivedAt?: number
+}
+
 export type Mood = 1 | 2 | 3 | 4 | 5
 
 export interface JournalEntry {
@@ -102,6 +134,7 @@ export interface AppState {
   version: number
   tasks: Task[]
   goals: DailyGoal[]
+  deadlines: Deadline[]
   journal: JournalEntry[]
   sessions: FocusSession[]
   blocks: Block[]

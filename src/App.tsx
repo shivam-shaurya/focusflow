@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import {
-  BookOpen, CalendarDays, Flame, LayoutGrid, Menu, Settings as SettingsIcon, TrendingUp, X,
+  BookOpen, CalendarClock, CalendarDays, Flame, LayoutGrid, Menu,
+  Settings as SettingsIcon, TrendingUp, X,
 } from 'lucide-react'
 import { StoreProvider, useStore } from './lib/store'
 import { Today } from './views/Today'
 import { Planner } from './views/Planner'
 import { Journal } from './views/Journal'
+import { Deadlines } from './views/Deadlines'
 import { Progress } from './views/Progress'
 import { NewMe } from './views/NewMe'
 import { Settings } from './views/Settings'
@@ -15,11 +17,12 @@ import { OfflineBadge, PwaToasts } from './components/PwaToasts'
 import { StorageBanner } from './components/StorageBanner'
 import { requestPersistence, useOnline } from './lib/pwa'
 
-type Route = 'today' | 'planner' | 'journal' | 'newme' | 'progress' | 'settings'
+type Route = 'today' | 'planner' | 'deadlines' | 'journal' | 'newme' | 'progress' | 'settings'
 
 const NAV: Array<{ id: Route; label: string; icon: typeof LayoutGrid; hint: string }> = [
   { id: 'today', label: 'Today', icon: LayoutGrid, hint: 'One day at a time' },
   { id: 'planner', label: 'Planner', icon: CalendarDays, hint: 'The week ahead' },
+  { id: 'deadlines', label: 'Deadlines', icon: CalendarClock, hint: 'What is due' },
   { id: 'journal', label: 'Journal', icon: BookOpen, hint: 'Introspection' },
   { id: 'newme', label: 'New Me', icon: Flame, hint: 'Read every day' },
   { id: 'progress', label: 'Progress', icon: TrendingUp, hint: 'Week · month · year' },
@@ -69,6 +72,7 @@ function Shell() {
   const Current = {
     today: Today,
     planner: Planner,
+    deadlines: Deadlines,
     journal: Journal,
     newme: NewMe,
     progress: Progress,
@@ -98,7 +102,7 @@ function Shell() {
         <div className="mt-auto flex flex-col gap-3">
         <OfflineBadge online={online} />
         <p className="text-xs leading-relaxed text-[var(--color-fg-muted)]">
-          Press <kbd className="rounded border px-1">1</kbd>–<kbd className="rounded border px-1">6</kbd> to
+          Press <kbd className="rounded border px-1">1</kbd>–<kbd className="rounded border px-1">7</kbd> to
           switch views.{' '}
           {saveStatus === 'saved'
             ? 'Everything saves automatically.'

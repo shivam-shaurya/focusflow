@@ -10,6 +10,8 @@ import { FocusTimer } from '../components/FocusTimer'
 import { GoalList } from '../components/GoalList'
 import { Cover } from '../components/ImagePicker'
 import { WEEKDAY_IDS } from '../lib/covers'
+import { QuoteCard } from '../components/QuoteCard'
+import { DeadlineNudge } from '../components/DeadlineNudge'
 
 export function Today() {
   const { state, updateTask, setDayCover } = useStore()
@@ -55,6 +57,8 @@ export function Today() {
         </div>
       </header>
 
+      <QuoteCard />
+
       {theOne && (
         <motion.div
           layout
@@ -72,6 +76,8 @@ export function Today() {
           )}
         </motion.div>
       )}
+
+      <DeadlineNudge onOpen={() => { window.location.hash = '#/deadlines' }} />
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <div className="flex flex-col gap-6">

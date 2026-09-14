@@ -81,10 +81,33 @@ npm run desktop:build    # installer in src-tauri/target/release/bundle/
 |-----|------|------------|
 | `1` | Today | Today's cover image, the seven daily goals, one-off tasks, brain-dump Inbox, focus timer, week strip |
 | `2` | Planner | Notion-style board: editable banner, icon and title, one cover image per weekday, all seven goals on every day card |
-| `3` | Journal | Mood + focus ratings and **seven templates** — daily reflection, data drop, problem breakdown, solve it, 5 whys, preventive measures, self-compassion |
-| `4` | New Me | The pointed re-read-daily page: collapsible colour-coded sections (rules, learnings, preventive measures, purpose, visualization), fully editable, add/delete/reorder |
-| `5` | Progress | **Week / month / year** rollups: stat tiles, bar charts, consistency bars, full-year heatmap, table view |
-| `6` | Settings | Name, year theme, all seven day covers, daily-goal editor, focus/break length, theme, JSON export/import |
+| `3` | Deadlines | Countdown, % bar, and the pace maths: give it hours + a due date and it tells you what today owes |
+| `4` | Journal | Mood + focus ratings and **seven templates** — daily reflection, data drop, problem breakdown, solve it, 5 whys, preventive measures, self-compassion |
+| `5` | New Me | The pointed re-read-daily page: collapsible colour-coded sections (rules, learnings, preventive measures, purpose, visualization), fully editable, add/delete/reorder |
+| `6` | Progress | **Week / month / year** rollups: stat tiles, bar charts, consistency bars, full-year heatmap, table view |
+| `7` | Settings | Name, year theme, all seven day covers, daily-goal editor, focus/break length, theme, JSON export/import |
+
+## Deadlines
+
+Add what it is, the hours you think it needs, and the date it is due. Everything
+else is arithmetic rather than a guess:
+
+- **Working days.** Pick which weekdays you can actually touch it. The daily
+  target divides across those days only, so "I never study at weekends" produces
+  a number you can hit instead of one you quietly ignore.
+- **Do today.** The headline figure, already net of hours logged today.
+- **Pace.** Logged hours are compared against a linear expectation across the
+  working days of the whole run, so starting late shows up as a shortfall rather
+  than hiding in an average. Ahead / on track / behind / at risk / past due.
+- **Strategise** — daily, weekly or monthly. Remaining effort is split across
+  remaining *days* and then grouped, so a three-day final week is asked for three
+  days' worth, not a full week's. Past periods show what was actually logged,
+  and an empty past period reads "missed".
+- **Today** shows a nudge with the total hours the day owes across all deadlines,
+  and names the ones that have slipped far enough that the plan needs changing.
+
+A daily quote sits at the top of Today. It is derived from the date, so it is
+fixed for the day and identical on every device, with nothing stored.
 
 ## Customization
 
