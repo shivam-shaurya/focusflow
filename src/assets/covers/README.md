@@ -11,6 +11,7 @@ worker precaches them so they work offline.
 |---|---|
 | `monday.webp` … `sunday.webp` | Default cover for that weekday, on Today and the Planner board |
 | `banner.webp` | Default banner across the top of the Planner |
+| `icon.webp` | Default square board icon beside the Planner title |
 | anything else, e.g. `ocean.webp` | Offered in the picker's "Built in" gallery |
 
 Every file also appears in the gallery, so a user can put Friday's art on
@@ -22,8 +23,14 @@ Tuesday if they want.
 
 ## Sizes
 
-- Day covers render at roughly **640×240**. Source around 800×400 is plenty.
+- Day covers render at roughly **640×240** (a wide band). Source around
+  1200×675 is ideal — a 16:9 image crops cleanly.
 - The banner renders up to **1280×180**. Source around 1600×500.
+- The board icon is square, **56×56**. Use a 1:1 source.
+
+Images are drawn with `object-cover`, so any aspect ratio works — but a tall
+portrait image will be cropped to a narrow horizontal band through its middle.
+Landscape sources look best.
 
 ## Keep them small
 

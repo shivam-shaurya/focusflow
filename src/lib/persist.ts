@@ -1,6 +1,6 @@
 import type { AppState, Settings } from './types'
 import { seedBlocks, seedGoals, uid } from './seed'
-import { defaultBanner, defaultDayCovers } from './covers'
+import { defaultAvatar, defaultBanner, defaultDayCovers } from './covers'
 import { todayISO } from './date'
 
 /**
@@ -58,6 +58,7 @@ export const seed = (): AppState => ({
     ...defaultSettings,
     dayCovers: defaultDayCovers(),
     banner: defaultBanner(),
+    avatar: defaultAvatar(),
   },
 })
 

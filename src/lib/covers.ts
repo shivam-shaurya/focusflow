@@ -9,6 +9,7 @@
  * Naming decides the role:
  *   monday.webp … sunday.webp   default cover for that weekday
  *   banner.webp                 default board banner on the Planner
+ *   icon.webp                   default square board icon beside the title
  *   anything-else.webp          offered in the picker's gallery
  *
  * State stores the opaque ref `bundled:<id>`, never a resolved URL, so a saved
@@ -77,3 +78,5 @@ export function defaultDayCovers(): Record<string, string> {
 }
 
 export const defaultBanner = (): string => (COVERS.banner ? bundledRef('banner') : '')
+
+export const defaultAvatar = (): string => (COVERS.icon ? bundledRef('icon') : '')
