@@ -53,7 +53,12 @@ export default defineConfig({
       },
       workbox: {
         // The whole app shell is precached, so a cold start with no network works.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        // Image extensions are included so the bundled covers in
+        // src/assets/covers are available offline like everything else.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,gif,avif,woff,woff2}'],
+        // Bundled cover art (animated GIFs especially) can be chunky; without
+        // this a large one is silently dropped from the precache.
+        maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: `${base}index.html`,
         cleanupOutdatedCaches: true,
         runtimeCaching: [

@@ -1,5 +1,6 @@
 import type { AppState, Settings } from './types'
 import { seedBlocks, seedGoals, uid } from './seed'
+import { defaultBanner, defaultDayCovers } from './covers'
 import { todayISO } from './date'
 
 /**
@@ -17,6 +18,12 @@ export const KEY = 'focusflow.v2'
 const CORRUPT_PREFIX = `${KEY}.corrupt.`
 export const PREIMPORT_KEY = `${KEY}.preimport`
 
+/**
+ * Note the empty `dayCovers`/`banner` here: these defaults are also the backfill
+ * for an existing saved payload, and a returning user who deliberately cleared a
+ * cover must not have it reappear. Bundled art is seeded only for a fresh
+ * install, in `seed()` below.
+ */
 export const defaultSettings: Settings = {
   name: '',
   theme: 'dark',
@@ -47,7 +54,11 @@ export const seed = (): AppState => ({
   journal: [],
   sessions: [],
   blocks: seedBlocks(),
-  settings: defaultSettings,
+  settings: {
+    ...defaultSettings,
+    dayCovers: defaultDayCovers(),
+    banner: defaultBanner(),
+  },
 })
 
 /* ── migration ───────────────────────────────────────────────────────────── */

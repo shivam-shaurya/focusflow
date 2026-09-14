@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { ImagePlus, Link2, Trash2, Upload, X } from 'lucide-react'
+import { Check, ImagePlus, Link2, Trash2, Upload, X } from 'lucide-react'
+import { bundledRef, galleryCovers, resolveCover } from '../lib/covers'
 import { Button, cx } from './ui'
 
 /** Uploads are inlined as data URLs into localStorage, so keep them small. */
@@ -19,12 +20,15 @@ export function Cover({
   rounded?: string
 }) {
   const [open, setOpen] = useState(false)
+  // State holds an opaque ref (`bundled:…`) or a plain URL; only the <img> needs
+  // the resolved form, so a saved cover survives a change of base path.
+  const resolved = resolveCover(src)
 
   return (
-    <div className="group/cover relative" style={{ height: src ? height : undefined }}>
-      {src ? (
+    <div className="group/cover relative" style={{ height: resolved ? height : undefined }}>
+      {resolved ? (
         <img
-          src={src}
+          src={resolved}
           alt=""
           className={cx('h-full w-full object-cover', rounded)}
           style={{ height }}
@@ -44,7 +48,7 @@ export function Cover({
         </button>
       )}
 
-      {src && (
+      {resolved && (
         <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover/cover:opacity-100">
           <Button size="sm" className="!min-h-8 bg-black/60 !px-2 text-white backdrop-blur" onClick={() => setOpen(true)}>
             Change
@@ -63,7 +67,7 @@ export function Cover({
       {open && (
         <Picker
           label={label}
-          initial={src ?? ''}
+          current={src ?? ''}
           onClose={() => setOpen(false)}
           onPick={(url) => { onChange(url); setOpen(false) }}
         />
@@ -73,11 +77,14 @@ export function Cover({
 }
 
 function Picker({
-  label, initial, onPick, onClose,
-}: { label: string; initial: string; onPick: (url: string) => void; onClose: () => void }) {
-  const [url, setUrl] = useState(initial)
+  label, current, onPick, onClose,
+}: { label: string; current: string; onPick: (url: string) => void; onClose: () => void }) {
+  // A `bundled:` ref is not something to show in a URL field, so the text input
+  // starts empty for those rather than round-tripping the ref back as a "link".
+  const [url, setUrl] = useState(current.startsWith('bundled:') ? '' : current)
   const [err, setErr] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const gallery = galleryCovers()
 
   const takeFile = (file: File) => {
     if (file.size > MAX_UPLOAD) {
@@ -106,13 +113,51 @@ function Picker({
           <div>
             <h2 className="font-bold">{label}</h2>
             <p className="mt-0.5 text-xs text-[var(--color-fg-muted)]">
-              Paste a direct image or GIF link, or upload a small file.
+              {gallery.length > 0
+                ? 'Pick one of the built-in covers, paste a link, or upload a file.'
+                : 'Paste a direct image or GIF link, or upload a small file.'}
             </p>
           </div>
           <button onClick={onClose} aria-label="Close" className="cursor-pointer rounded-lg p-1.5 hover:bg-[var(--color-surface-2)]">
             <X size={16} />
           </button>
         </div>
+
+        {gallery.length > 0 && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[var(--color-fg-muted)]">
+              Built in
+            </p>
+            <ul className="grid max-h-44 grid-cols-3 gap-2 overflow-y-auto pr-1">
+              {gallery.map((c) => {
+                const ref = bundledRef(c.id)
+                const active = current === ref
+                return (
+                  <li key={c.id}>
+                    <button
+                      onClick={() => onPick(ref)}
+                      aria-label={c.label}
+                      aria-pressed={active}
+                      className={cx(
+                        'relative block h-16 w-full cursor-pointer overflow-hidden rounded-lg border transition-colors duration-150',
+                        active
+                          ? 'border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]'
+                          : 'hover:border-[var(--color-primary)]',
+                      )}
+                    >
+                      <img src={c.url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                      {active && (
+                        <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-[var(--color-primary)] text-[var(--color-on-primary)]">
+                          <Check size={12} strokeWidth={3} />
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
 
         <form
           className="mt-4 flex gap-2"
